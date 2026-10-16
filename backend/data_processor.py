@@ -114,37 +114,61 @@ class DataProcessor:
             "Flipkart",
         )
 
+    @staticmethod
+    def _is_usable_csv(file_path: Optional[str]) -> bool:
+        """Check if file exists, is regular file, and contains more than 0 bytes."""
+        return bool(file_path and os.path.isfile(file_path) and os.path.getsize(file_path) > 0)
+
     def _resolve_path(
         self,
         explicit_file: Optional[str],
         candidates: List[str],
         platform_name: str,
-    ) -> str:
-        """Find the dataset file from explicit path or candidate filenames."""
+        required: bool = False,
+    ) -> Optional[str]:
+        """Find the dataset file from explicit path or candidate filenames.
+        Returns None when not found unless required=True.
+        """
         if explicit_file and os.path.isfile(explicit_file):
             return os.path.abspath(explicit_file)
         for name in candidates:
             candidate_path = os.path.join(self.raw_dir, name)
             if os.path.isfile(candidate_path):
                 return candidate_path
-        raise FileNotFoundError(
-            f"Could not locate {platform_name} dataset in '{self.raw_dir}'. "
-            f"Checked candidates: {candidates}"
-        )
+        if required:
+            raise FileNotFoundError(
+                f"Could not locate {platform_name} dataset in '{self.raw_dir}'. "
+                f"Checked candidates: {candidates}"
+            )
+        return None
 
     # -------------------------------------------------------------------------
     # Phase 1: Inspection & Schema Introspection
     # -------------------------------------------------------------------------
     def inspect_datasets(self) -> Dict[str, Any]:
         """Inspect both raw CSV files without modifying them."""
-        print(f"\n[Phase 1] Inspecting Flipkart dataset: {self.flipkart_path}")
-        df_fk_sample = pd.read_csv(self.flipkart_path, nrows=500)
-        total_fk_rows = sum(1 for _ in open(self.flipkart_path, "r", encoding="utf-8", errors="ignore")) - 1
+        if not self._is_usable_csv(self.flipkart_path) and not self._is_usable_csv(self.amazon_path):
+            print("[Phase 1 Warning] Neither Flipkart nor Amazon raw datasets are available or non-empty.")
+            return {"flipkart": {"status": "missing_or_empty"}, "amazon": {"status": "missing_or_empty"}}
 
-        print(f"[Phase 1] Inspecting Amazon dataset: {self.amazon_path}")
-        df_az_sample = pd.read_csv(self.amazon_path, header=None, nrows=500)
-        with open(self.amazon_path, "r", encoding="utf-8", errors="ignore") as f:
-            total_az_rows = sum(1 for _ in f)
+        if self._is_usable_csv(self.flipkart_path):
+            print(f"\n[Phase 1] Inspecting Flipkart dataset: {self.flipkart_path}")
+            df_fk_sample = pd.read_csv(self.flipkart_path, nrows=500)
+            total_fk_rows = max(0, sum(1 for _ in open(self.flipkart_path, "r", encoding="utf-8", errors="ignore")) - 1)
+        else:
+            print(f"[Phase 1 Warning] Flipkart dataset missing or empty: {self.flipkart_path}")
+            df_fk_sample = pd.DataFrame(columns=["Rate", "product_price", "Sentiment", "Review", "Summary", "product_name"])
+            total_fk_rows = 0
+
+        if self._is_usable_csv(self.amazon_path):
+            print(f"[Phase 1] Inspecting Amazon dataset: {self.amazon_path}")
+            df_az_sample = pd.read_csv(self.amazon_path, header=None, nrows=500)
+            with open(self.amazon_path, "r", encoding="utf-8", errors="ignore") as f:
+                total_az_rows = sum(1 for _ in f)
+        else:
+            print(f"[Phase 1 Warning] Amazon dataset missing or empty: {self.amazon_path}")
+            df_az_sample = pd.DataFrame()
+            total_az_rows = 0
 
         inspection_results = {
             "flipkart": {
@@ -186,8 +210,21 @@ class DataProcessor:
 
     def clean_flipkart(self) -> Tuple[pd.DataFrame, Dict[str, Any]]:
         """Load and clean Flipkart reviews into canonical 10-field schema."""
+        if not self._is_usable_csv(self.flipkart_path):
+            print(f"[Phase 2 Warning] Skipping Flipkart processing: dataset missing or 0 bytes ({self.flipkart_path}).")
+            return pd.DataFrame(columns=CANONICAL_COLUMNS), {}
+
         print(f"\n[Phase 2] Processing Flipkart dataset: {self.flipkart_path}")
-        df_raw = pd.read_csv(self.flipkart_path, nrows=self.limit)
+        try:
+            df_raw = pd.read_csv(self.flipkart_path, nrows=self.limit)
+        except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
+            print(f"[Phase 2 Warning] Skipping Flipkart processing (unusable data): {e}")
+            return pd.DataFrame(columns=CANONICAL_COLUMNS), {}
+
+        if df_raw.empty or not any(c in df_raw.columns for c in ["Rate", "Review", "Sentiment", "Summary"]):
+            print(f"[Phase 2 Warning] Skipping Flipkart processing: no usable review records or required columns found.")
+            return pd.DataFrame(columns=CANONICAL_COLUMNS), {}
+
         loaded_count = len(df_raw)
         duplicate_count = int(df_raw.duplicated().sum())
 
@@ -337,13 +374,21 @@ class DataProcessor:
         az_missing_summaries = 0
         sentiment_counts = {"positive": 0, "negative": 0}
 
-        chunk_iter = pd.read_csv(
-            self.amazon_path,
-            header=None,
-            chunksize=self.chunksize,
-            nrows=self.limit,
-            dtype=str,
-        )
+        if not self._is_usable_csv(self.amazon_path):
+            print(f"[Phase 3 Warning] Skipping Amazon streaming: dataset missing or 0 bytes ({self.amazon_path}).")
+            chunk_iter = []
+        else:
+            try:
+                chunk_iter = pd.read_csv(
+                    self.amazon_path,
+                    header=None,
+                    chunksize=self.chunksize,
+                    nrows=self.limit,
+                    dtype=str,
+                )
+            except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
+                print(f"[Phase 3 Warning] Skipping Amazon streaming (unusable data): {e}")
+                chunk_iter = []
 
         for i, chunk in enumerate(chunk_iter):
             az_loaded_total += len(chunk)
@@ -487,14 +532,24 @@ class DataProcessor:
 
         # 1. Insert Flipkart reviews
         fk_csv = os.path.join(self.processed_dir, "flipkart_cleaned.csv")
-        if not os.path.isfile(fk_csv):
-            print("Processing Flipkart data first...")
-            self.clean_flipkart()[0].to_csv(fk_csv, index=False)
+        if not self._is_usable_csv(fk_csv):
+            if self._is_usable_csv(self.flipkart_path):
+                print("Processing Flipkart data first...")
+                fk_clean_df, _ = self.clean_flipkart()
+                if not fk_clean_df.empty:
+                    fk_clean_df.to_csv(fk_csv, index=False)
 
-        print(f"Loading Flipkart reviews from {fk_csv}...")
-        df_fk = pd.read_csv(fk_csv)
         fk_inserted = 0
         fk_batch = []
+        df_fk = pd.DataFrame(columns=CANONICAL_COLUMNS)
+        if self._is_usable_csv(fk_csv):
+            try:
+                print(f"Loading Flipkart reviews from {fk_csv}...")
+                df_fk = pd.read_csv(fk_csv)
+            except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
+                print(f"[Database Seeding Warning] Could not read Flipkart processed file ({e}).")
+        else:
+            print("[Database Seeding Warning] No usable Flipkart dataset found. Skipping Flipkart real-review seeding.")
 
         for _, r in df_fk.iterrows():
             prod = str(r["product_name"]) if pd.notna(r["product_name"]) else None
@@ -552,7 +607,7 @@ class DataProcessor:
         # 2. Insert Amazon reviews (sampled for fast web dashboard responsiveness)
         az_csv = os.path.join(self.processed_dir, "amazon_cleaned.csv")
         az_inserted = 0
-        if os.path.isfile(az_csv):
+        if self._is_usable_csv(az_csv):
             print(f"Loading balanced sample of {amazon_sample_limit:,} Amazon reviews from {az_csv}...")
             az_batch = []
             for chunk in pd.read_csv(az_csv, chunksize=10000, nrows=amazon_sample_limit):

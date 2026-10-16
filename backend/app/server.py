@@ -608,9 +608,15 @@ def serve(port=8765):
         load_synthetic_demo()
 
     if real_count == 0:
-        print("[Server] Real review database is empty. Running automatic SQLite seeding from processed datasets...")
-        from ..data_processor import DataProcessor
-        dp = DataProcessor()
-        dp.populate_database(db_path=DB, amazon_sample_limit=50000)
+        print("[Server] Real review database has 0 records. Checking for local datasets to seed...")
+        try:
+            try:
+                from data_processor import DataProcessor
+            except ImportError:
+                from ..data_processor import DataProcessor
+            dp = DataProcessor()
+            dp.populate_database(db_path=DB, amazon_sample_limit=50000)
+        except Exception as e:
+            print(f"[Server Warning] Automatic real-review database seeding skipped: {e}")
 
     return ThreadingHTTPServer(("127.0.0.1", port), H)
