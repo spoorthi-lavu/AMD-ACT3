@@ -945,6 +945,38 @@
           </table>
         </div>
       `;
+
+      const btn = container.querySelector('#btn-run-infer');
+      if (btn) {
+        btn.addEventListener('click', async () => {
+          const txt = container.querySelector('#infer-input').value.trim();
+          const rating = container.querySelector('#infer-rating').value;
+          const resBox = container.querySelector('#infer-result');
+          if (!txt) return;
+          btn.disabled = true;
+          btn.textContent = 'RUNNING...';
+          resBox.style.display = 'block';
+          resBox.innerHTML = '<span style="color:#666;">Querying AMD inference pipeline...</span>';
+          try {
+            const out = await API.post('/api/amd_infer', { text: txt, rating: parseFloat(rating) });
+            resBox.innerHTML = `
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; font-size:13px;">
+                <div><strong>Sentiment:</strong> <span class="badge ${out.sentiment}">${escapeHtml(out.sentiment)}</span></div>
+                <div><strong>Confidence:</strong> ${(out.confidence * 100).toFixed(0)}%</div>
+                <div><strong>Category:</strong> <code>${escapeHtml(out.complaint_category || 'none')}</code></div>
+                <div><strong>Engine:</strong> <span style="font-weight:600; color:#1a56db;">${escapeHtml(out.processing_engine)}</span></div>
+              </div>
+              <div style="margin-top:10px; font-size:13px;"><strong>Diagnosed Issue:</strong> ${escapeHtml(out.product_issue || 'None diagnosed')}</div>
+              <div style="margin-top:4px; font-size:13px;"><strong>Recommended Action:</strong> ${escapeHtml(out.recommended_action || 'None required')}</div>
+            `;
+          } catch (e) {
+            resBox.innerHTML = `<span style="color:#d94a4a;">Inference error: ${escapeHtml(e.message)}</span>`;
+          } finally {
+            btn.disabled = false;
+            btn.textContent = 'RUN INFERENCE';
+          }
+        });
+      }
     }
 
     async function renderReviews(container, s) {
@@ -1267,8 +1299,12 @@
                 <td>${escapeHtml(amd.engine_type || 'Host CPU (Statistical & Rule-based Engine)')}</td>
               </tr>
               <tr>
-                <td><strong>ROCm GPU Active</strong></td>
+                <td><strong>ROCm GPU Active (Local)</strong></td>
                 <td><span style="color:${amd.rocm_active ? '#27ae60' : '#888'}; font-weight:600;">${amd.rocm_active ? 'YES (ROCm Accelerated)' : 'Ready for ROCm Deployment (Host CPU Mode)'}</span></td>
+              </tr>
+              <tr>
+                <td><strong>AMD Token Factory Cloud</strong></td>
+                <td><span style="color:${amd.token_factory_active ? '#27ae60' : '#888'}; font-weight:600;">${amd.token_factory_active ? 'CONNECTED (' + escapeHtml(amd.token_factory_model) + ')' : (amd.circuit_paused ? 'CIRCUIT BREAKER PAUSED (Cooldown Active)' : 'Not Configured (CPU Fallback Active)')}</span></td>
               </tr>
               <tr>
                 <td><strong>Inference Schema</strong></td>
@@ -1284,6 +1320,28 @@
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <div class="dashboard-panel">
+          <div class="panel-header">
+            <div class="panel-title">Interactive AMD AI Inference Test</div>
+            <span class="provenance-tag">Live GPU Diagnostics</span>
+          </div>
+          <p style="margin-bottom:14px; color:#555; font-size:13px;">
+            Test the live AMD inference pipeline on any customer feedback text. It queries <strong>DeepSeek-V4-Flash</strong> on AMD Token Factory Cloud when configured, or instantly runs the explainable CPU rule engine.
+          </p>
+          <div style="display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
+            <input type="text" id="infer-input" class="form-input" placeholder="Type or paste a customer review (e.g., 'The air cooler is chilling and quiet, but the packaging was damaged.')..." style="flex:1; min-width:280px;" value="The air cooler is chilling and quiet, but the packaging was damaged.">
+            <select id="infer-rating" class="form-select" style="width:140px;">
+              <option value="4">Rating: 4 ★</option>
+              <option value="5">Rating: 5 ★</option>
+              <option value="3">Rating: 3 ★</option>
+              <option value="2">Rating: 2 ★</option>
+              <option value="1">Rating: 1 ★</option>
+            </select>
+            <button id="btn-run-infer" class="btn-download" style="padding:8px 18px;">RUN INFERENCE</button>
+          </div>
+          <div id="infer-result" style="display:none; padding:14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; margin-top:10px;"></div>
         </div>
 
         <div class="dashboard-panel">

@@ -551,6 +551,16 @@ class H(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         try:
             raw = self.body()
+            if u.path == "/api/amd_infer":
+                d = json.loads(raw or "{}")
+                text = d.get("text", "")
+                if not text:
+                    return self.send({"error": "Missing 'text' field"}, 400)
+                rating = d.get("rating")
+                try: rating = float(rating) if rating is not None else None
+                except (ValueError, TypeError): rating = None
+                res = amd_engine.infer_batch([{"text": text, "rating": rating}])
+                return self.send(res[0] if res else {})
             if u.path == "/api/demo":
                 return self.send(load_synthetic_demo())
             if u.path == "/api/alert/status":

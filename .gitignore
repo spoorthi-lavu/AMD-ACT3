@@ -1,9 +1,11 @@
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
+*.class
 *.so
 .env
+.env.*
+!.env.example
 venv/
 env/
 ENV/
