@@ -1,0 +1,167 @@
+{
+  "execution_time_seconds": 103.64,
+  "datasets": {
+    "flipkart": {
+      "platform": "Flipkart",
+      "rows_loaded": 205052,
+      "rows_retained": 205047,
+      "rows_dropped": 5,
+      "dropped_reasons": {
+        "malformed_or_shifted_rows": 3,
+        "empty_review_text": 0
+      },
+      "sentiment_counts": {
+        "positive": 166578,
+        "negative": 28231,
+        "neutral": 10238
+      },
+      "avg_rating": 4.12,
+      "avg_price": 4135.2
+    },
+    "amazon": {
+      "platform": "Amazon",
+      "rows_loaded": 3600000,
+      "rows_retained": 3600000,
+      "rows_dropped": 0,
+      "sentiment_counts": {
+        "positive": 1800000,
+        "negative": 1800000
+      }
+    }
+  },
+  "totals": {
+    "total_rows_loaded": 3805052,
+    "total_rows_retained": 3805047,
+    "total_rows_dropped": 5
+  },
+  "output_files": {
+    "flipkart_cleaned": "C:\\Users\\tanis\\Downloads\\review-forensics (1)\\review-forensics\\data\\processed\\flipkart_cleaned.csv",
+    "amazon_cleaned": "C:\\Users\\tanis\\Downloads\\review-forensics (1)\\review-forensics\\data\\processed\\amazon_cleaned.csv",
+    "combined_reviews": "C:\\Users\\tanis\\Downloads\\review-forensics (1)\\review-forensics\\data\\processed\\combined_reviews.csv"
+  },
+  "inspection": {
+    "amazon": {
+      "file_path": "C:\\Users\\tanis\\Downloads\\review-forensics (1)\\review-forensics\\data\\raw\\amazon_reviews.csv",
+      "file_size_mb": 1511.76,
+      "total_rows": 3600000,
+      "raw_columns": [
+        "Column_0",
+        "Column_1",
+        "Column_2"
+      ],
+      "sample_dtypes": {
+        "Column_0": "int64",
+        "Column_1": "object",
+        "Column_2": "object"
+      },
+      "sample_missing": {
+        "Column_0": 0,
+        "Column_1": 0,
+        "Column_2": 0
+      },
+      "sample_head": [
+        {
+          "0": 2,
+          "1": "Stuning even for the non-gamer",
+          "2": "This sound track was beautiful! It paints the senery in your mind so well I would recomend it even to people who hate vid. game music! I have played the game Chrono Cross but out of all of the games I have ever played it has the best music! It backs away from crude keyboarding and takes a fresher step with grate guitars and soulful orchestras. It would impress anyone who cares to listen! ^_^"
+        },
+        {
+          "0": 2,
+          "1": "The best soundtrack ever to anything.",
+          "2": "I'm reading a lot of reviews saying that this is the best 'game soundtrack' and I figured that I'd write a review to disagree a bit. This in my opinino is Yasunori Mitsuda's ultimate masterpiece. The music is timeless and I'm been listening to it for years now and its beauty simply refuses to fade.The price tag on this is pretty staggering I must say, but if you are going to buy any cd for this much money, this is the only one that I feel would be worth every penny."
+        }
+      ]
+    },
+    "flipkart": {
+      "file_path": "C:\\Users\\tanis\\Downloads\\review-forensics (1)\\review-forensics\\data\\raw\\flipkart_reviews.csv",
+      "file_size_mb": 31.81,
+      "total_rows": 205052,
+      "raw_columns": [
+        "product_name",
+        "product_price",
+        "Rate",
+        "Review",
+        "Summary",
+        "Sentiment"
+      ],
+      "sample_dtypes": {
+        "product_name": "object",
+        "product_price": "int64",
+        "Rate": "int64",
+        "Review": "object",
+        "Summary": "object",
+        "Sentiment": "object"
+      },
+      "sample_missing": {
+        "product_name": 0,
+        "product_price": 0,
+        "Rate": 0,
+        "Review": 0,
+        "Summary": 0,
+        "Sentiment": 0
+      },
+      "sample_head": [
+        {
+          "product_name": "Candes 12 L Room/Personal Air Cooler??????(White, Black, Elegant High Speed-Honey Comb Cooling Pad & Ice Chamber, Blower)",
+          "product_price": 3999,
+          "Rate": 5,
+          "Review": "super!",
+          "Summary": "great cooler excellent air flow and for this price its so amazing and unbelievablejust love it",
+          "Sentiment": "positive"
+        },
+        {
+          "product_name": "Candes 12 L Room/Personal Air Cooler??????(White, Black, Elegant High Speed-Honey Comb Cooling Pad & Ice Chamber, Blower)",
+          "product_price": 3999,
+          "Rate": 5,
+          "Review": "awesome",
+          "Summary": "best budget 2 fit cooler nice cooling",
+          "Sentiment": "positive"
+        }
+      ]
+    },
+    "comparable_fields": [
+      {
+        "canonical_field": "platform",
+        "amazon_source": "Constant 'Amazon'",
+        "flipkart_source": "Constant 'Flipkart'",
+        "notes": "Both platforms distinctly identified."
+      },
+      {
+        "canonical_field": "review",
+        "amazon_source": "Col 1 (Title) + Col 2 (Body text)",
+        "flipkart_source": "'Review' (Headline) + 'Summary' (Body text)",
+        "notes": "Both contain rich review text. Merged cleanly."
+      },
+      {
+        "canonical_field": "sentiment",
+        "amazon_source": "Col 0 Polarity (1 -> negative, 2 -> positive)",
+        "flipkart_source": "'Sentiment' column ('positive', 'negative', 'neutral')",
+        "notes": "Both datasets provide ground-truth sentiment labels."
+      },
+      {
+        "canonical_field": "product",
+        "amazon_source": "Absent (Not available in source CSV)",
+        "flipkart_source": "'product_name' column",
+        "notes": "Amazon source has no product name; set to NaN to avoid fabrication."
+      },
+      {
+        "canonical_field": "rating",
+        "amazon_source": "Absent (Raw data is binary polarity 1/2, not 1-5 star ratings)",
+        "flipkart_source": "'Rate' column (numeric 1-5)",
+        "notes": "Amazon rating left as NaN to avoid fabricating 1-5 star values."
+      },
+      {
+        "canonical_field": "price",
+        "amazon_source": "Absent (Not available in source CSV)",
+        "flipkart_source": "'product_price' column (INR numeric)",
+        "notes": "Amazon price left as NaN to avoid fabrication."
+      },
+      {
+        "canonical_field": "review_date",
+        "amazon_source": "Absent (Not available in source CSV)",
+        "flipkart_source": "Absent (Not available in source CSV)",
+        "notes": "Neither dataset provides timestamps; left as NaN."
+      }
+    ]
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "generated_at": "2026-10-16T07:23:54Z",
+  "execution_time_seconds": 135.56,
+  "sources": {
+    "Flipkart": {
+      "source": "Flipkart",
+      "rows_loaded": 205052,
+      "rows_retained": 205047,
+      "rows_dropped": 5,
+      "duplicates_detected": 34375,
+      "unique_products": 958,
+      "categories_breakdown": {
+        "Home Appliances": 108179,
+        "General Merchandise": 55820,
+        "Fashion & Apparel": 12551,
+        "Electronics & Media": 11791,
+        "Kitchen & Dining": 8786,
+        "Beauty & Personal Care": 4458,
+        "Home Furnishings": 3462
+      },
+      "missing_fields": {
+        "review_date": 205047,
+        "review_summary": 24662,
+        "price": 0,
+        "rating": 0,
+        "product_id": 0
+      },
+      "sentiment_counts": {
+        "positive": 166578,
+        "negative": 28231,
+        "neutral": 10238
+      },
+      "avg_rating": 4.12,
+      "avg_price": 4135.2
+    },
+    "Amazon": {
+      "source": "Amazon",
+      "rows_loaded": 3600000,
+      "rows_retained": 3600000,
+      "rows_dropped": 0,
+      "duplicates_detected": 0,
+      "unique_products": 0,
+      "categories_breakdown": {
+        "Unspecified (Amazon Polarity Dataset)": 3600000
+      },
+      "missing_fields": {
+        "product_id": 3600000,
+        "product_name": 3600000,
+        "category": 3600000,
+        "price": 3600000,
+        "rating": 3600000,
+        "review_date": 3600000,
+        "review_summary": 207
+      },
+      "sentiment_counts": {
+        "positive": 1800000,
+        "negative": 1800000
+      }
+    }
+  },
+  "totals": {
+    "total_rows_loaded": 3805052,
+    "total_rows_retained": 3805047,
+    "total_rows_dropped": 5
+  },
+  "schema_conformance": {
+    "canonical_fields": [
+      "product_id",
+      "product_name",
+      "category",
+      "price",
+      "rating",
+      "review_text",
+      "review_summary",
+      "sentiment",
+      "review_date",
+      "source"
+    ],
+    "zero_fabrication_policy": true,
+    "missing_dates_preserved": true
+  }
+}

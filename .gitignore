@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+venv/
+env/
+ENV/
+
+# Large Raw and Processed Datasets (Generated / Kaggle)
+data/processed/*.csv
+data/processed/*.parquet
+data/raw/*.csv
+data/raw/train.csv
+data/raw/Dataset-SA.csv
+data/raw/amazon_reviews.csv
+data/raw/flipkart_reviews.csv
+
+# Keep JSON summary / quality report in git
+!data/processed/quality_report.json
+!data/processed/pipeline_summary.json
+
+# Local SQLite databases
+backend/data/*.db
+backend/data/*.db-journal
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
