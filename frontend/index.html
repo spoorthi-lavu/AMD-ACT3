@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -890,7 +890,7 @@
       <select id="filter-mode" class="form-select" style="font-weight:600;">
         <option value="real">Real data (Amazon and Flipkart)</option>
         <option value="demo">Synthetic trend demo</option>
-        <option value="benchmark">AMD Benchmark (10,000 synthetic reviews)</option>
+        <option value="benchmark" selected>AMD Benchmark (10,000 synthetic reviews)</option>
       </select>
       <div class="scope-selects">
         <select id="filter-platform" class="form-select">
@@ -915,7 +915,7 @@
   <script>
     const AppState = {
       currentView: 'overview',
-      mode: 'real',
+      mode: 'benchmark',
       platform: '',
       category: '',
       product: '',
