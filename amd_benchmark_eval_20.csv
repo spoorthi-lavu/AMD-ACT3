@@ -1,0 +1,21 @@
+benchmark_id,rating,expected_sentiment,predicted_sentiment,confidence,complaint_category,processing_engine,cloud_inference
+1,1.0,positive,positive,0.9,,AMD Token Factory (DeepSeek-V4-Flash),True
+2,5.0,positive,positive,0.9,,AMD Token Factory (DeepSeek-V4-Flash),True
+3,4.0,positive,positive,0.8,quality,AMD Token Factory (DeepSeek-V4-Flash),True
+4,5.0,positive,positive,0.8,,AMD Token Factory (DeepSeek-V4-Flash),True
+5,4.0,positive,positive,0.8,quality,AMD Token Factory (DeepSeek-V4-Flash),True
+6,5.0,positive,positive,0.9,,AMD Token Factory (DeepSeek-V4-Flash),True
+7,4.0,positive,positive,0.75,,CPU (Rule-Based & Statistical Engine) - Ready for AMD ROCm GPU deployment,False
+8,5.0,positive,positive,0.75,,CPU (Rule-Based & Statistical Engine) - Ready for AMD ROCm GPU deployment,False
+9,4.0,positive,positive,0.8,,AMD Token Factory (DeepSeek-V4-Flash),True
+10,5.0,positive,positive,0.9,,AMD Token Factory (DeepSeek-V4-Flash),True
+11,5.0,negative,negative,0.9,quality,AMD Token Factory (DeepSeek-V4-Flash),True
+12,2.0,negative,negative,0.9,quality,AMD Token Factory (DeepSeek-V4-Flash),True
+13,1.0,negative,negative,0.9,quality,AMD Token Factory (DeepSeek-V4-Flash),True
+14,2.0,negative,negative,0.9,quality,AMD Token Factory (DeepSeek-V4-Flash),True
+15,1.0,negative,negative,0.9,quality,AMD Token Factory (DeepSeek-V4-Flash),True
+16,2.0,negative,negative,0.8,quality,AMD Token Factory (DeepSeek-V4-Flash),True
+17,1.0,negative,negative,0.9,quality,AMD Token Factory (DeepSeek-V4-Flash),True
+18,2.0,negative,negative,0.9,quality,AMD Token Factory (DeepSeek-V4-Flash),True
+19,1.0,negative,negative,0.9,quality,AMD Token Factory (DeepSeek-V4-Flash),True
+20,2.0,negative,negative,0.9,quality,AMD Token Factory (DeepSeek-V4-Flash),True

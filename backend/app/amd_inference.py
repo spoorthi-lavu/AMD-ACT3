@@ -20,8 +20,13 @@ import re
 import json
 import time
 import threading
+from pathlib import Path
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, asdict
+
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 
 @dataclass
@@ -68,7 +73,7 @@ class AMDInferenceEngine:
     @property
     def token_factory_configured(self) -> bool:
         """True if AMD Token Factory has both base URL and API key configured."""
-        base_url = self._env("LLM_BASE_URL") or self._env("AMD_TOKEN_FACTORY_URL")
+        base_url = self._env("LLM_BASE_URL") or self._env("AMD_TOKEN_FACTORY_URL") or "https://developer.amd.com.cn/radeon/api/v1"
         key = self._env("LLM_API_KEY") or self._env("RADEON_API_KEY")
         return bool(base_url and key)
 
