@@ -619,4 +619,4 @@ def serve(port=8765):
         except Exception as e:
             print(f"[Server Warning] Automatic real-review database seeding skipped: {e}")
 
-    return ThreadingHTTPServer(("127.0.0.1", port), H)
+    return ThreadingHTTPServer(("0.0.0.0", port), H)
