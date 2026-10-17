@@ -134,6 +134,12 @@ def load_synthetic_demo():
 
 
 def summary(q):
+    if q.get('mode') == 'benchmark':
+        return benchmark_summary(q)
+    return _orig_summary(q)
+
+
+def _orig_summary(q):
     """High-performance SQL aggregated summary responding to source, category,
 
     and product filters.
@@ -341,6 +347,12 @@ def summary(q):
 
 
 def reviews(q):
+    if q.get('mode') == 'benchmark':
+        return benchmark_reviews(q)
+    return _orig_reviews(q)
+
+
+def _orig_reviews(q):
     """Paginated review explorer querying the indexed SQLite database."""
     c = conn()
     mode = q.get("mode", "real")
@@ -428,6 +440,12 @@ def reviews(q):
 
 
 def alerts_with_state(q):
+    if q.get('mode') == 'benchmark':
+        return benchmark_alerts_with_state(q)
+    return _orig_alerts_with_state(q)
+
+
+def _orig_alerts_with_state(q):
     """Returns anomaly alerts if dated data / demo mode is active;
 
     otherwise returns honest disclaimer explaining lack of dates in source data.
@@ -456,6 +474,12 @@ def alerts_with_state(q):
 
 
 def momentum_view(q):
+    if q.get('mode') == 'benchmark':
+        return benchmark_momentum_view(q)
+    return _orig_momentum_view(q)
+
+
+def _orig_momentum_view(q):
     """Returns product momentum metrics for dated records or explains requirement."""
     mode = q.get("mode", "real")
     if mode == "demo":
@@ -480,6 +504,96 @@ def momentum_view(q):
         ],
         "n": [0, 0],
     }]
+
+
+BENCH_NOTE = "Locally generated synthetic benchmark data (template-based). Not real customer reviews; labels are not independently verified."
+BENCH_NO_TIME = "Benchmark records have no timestamps, so alerts and momentum analysis are unavailable."
+
+
+def benchmark_summary(q):
+    c = conn()
+    tot = c.execute("SELECT COUNT(*) n, ROUND(AVG(rating),2) a, COUNT(rating) rc FROM synthetic_benchmark_reviews").fetchone()
+    ratings = {str(i): 0 for i in range(1, 6)}
+    for r in c.execute("SELECT CAST(ROUND(rating) AS INT) star, COUNT(*) n FROM synthetic_benchmark_reviews WHERE rating IS NOT NULL GROUP BY star"):
+        if r["star"] and 1 <= r["star"] <= 5:
+            ratings[str(r["star"])] = r["n"]
+    sentiment = {"positive": 0, "neutral": 0, "negative": 0}
+    for r in c.execute("SELECT sentiment, COUNT(*) n FROM synthetic_benchmark_reviews GROUP BY sentiment"):
+        if r["sentiment"] in sentiment:
+            sentiment[r["sentiment"]] = r["n"]
+    topics, cats = {}, {}
+    for r in c.execute("SELECT topic, sentiment, COUNT(*) n, ROUND(AVG(rating),2) a FROM synthetic_benchmark_reviews GROUP BY topic, sentiment"):
+        t = r["topic"] or "unspecified"
+        e = topics.setdefault(t, {"pos": 0, "neg": 0})
+        if r["sentiment"] == "positive":
+            e["pos"] += r["n"]
+        elif r["sentiment"] == "negative":
+            e["neg"] += r["n"]
+        k = cats.setdefault(t, {"category": t, "count": 0, "sum": 0.0})
+        k["count"] += r["n"]
+        k["sum"] += (r["a"] or 0) * r["n"]
+    categories = sorted(
+        [{"category": k["category"], "count": k["count"], "avg_rating": round(k["sum"] / k["count"], 2) if k["count"] else None, "avg_price": None} for k in cats.values()],
+        key=lambda x: -x["count"])
+    edge = c.execute("SELECT SUM(sarcasm) sarcasm, SUM(negation) negation, SUM(rating_text_mismatch) rating_text_mismatch, SUM(prompt_injection) prompt_injection FROM synthetic_benchmark_reviews").fetchone()
+    platforms = [{"platform": r["source"], "n": r["n"], "avg": r["a"], "avg_price": None}
+                 for r in c.execute("SELECT source, COUNT(*) n, ROUND(AVG(rating),2) a FROM synthetic_benchmark_reviews GROUP BY source")]
+    c.close()
+    return {
+        "mode": "benchmark", "total": tot["n"], "avg": tot["a"], "rated_count": tot["rc"],
+        "price_stats": {"avg": None, "min": None, "max": None},
+        "ratings": ratings, "sentiment": sentiment, "platforms": platforms,
+        "categories": categories, "topics": topics, "active_alerts": 0,
+        "notes": [BENCH_NOTE, BENCH_NO_TIME], "data_note": BENCH_NOTE,
+        "edge_cases": {k: (edge[k] or 0) for k in edge.keys()},
+        "products": [], "all_categories": [], "all_platforms": [],
+        "data_quality": [], "amd_status": amd_engine.status(),
+    }
+
+
+def benchmark_reviews(q):
+    where, params = ["1=1"], []
+    if q.get("sentiment"):
+        where.append("sentiment = ?"); params.append(q["sentiment"])
+    if q.get("rating"):
+        where.append("CAST(ROUND(rating) AS INT) = ?"); params.append(int(q["rating"]))
+    txt = (q.get("q") or "").strip()
+    if txt:
+        where.append("review_text LIKE ?"); params.append(f"%{txt}%")
+    w = " AND ".join(where)
+    c = conn()
+    total = c.execute(f"SELECT COUNT(*) FROM synthetic_benchmark_reviews WHERE {w}", params).fetchone()[0]
+    try:
+        page = max(1, int(q.get("page", 1)))
+    except ValueError:
+        page = 1
+    size = 15
+    order = "rating DESC, id DESC" if q.get("sort") == "rating" else "id DESC"
+    rows = []
+    for r in c.execute(f"SELECT * FROM synthetic_benchmark_reviews WHERE {w} ORDER BY {order} LIMIT ? OFFSET ?", params + [size, (page - 1) * size]):
+        flags = [n for n in ("sarcasm", "negation", "rating_text_mismatch", "prompt_injection") if r[n]]
+        topic = r["topic"]
+        rows.append({
+            "id": r["id"], "product": "Synthetic benchmark review", "product_name": None,
+            "category": topic, "price": None, "rating": r["rating"],
+            "review_summary": None, "sentiment": r["sentiment"],
+            "source": r["source"], "platform": r["source"],
+            "text": r["review_text"], "review_text": r["review_text"],
+            "date": "No date (synthetic benchmark)", "review_date": None,
+            "topics": [{"topic": topic}] if topic else [],
+            "flags": flags, "language": r["language"], "is_synthetic": 1,
+        })
+    c.close()
+    return {"total": total, "page": page, "pages": max(1, -(-total // size)), "rows": rows, "data_note": BENCH_NOTE}
+
+
+def benchmark_alerts_with_state(q):
+    return [], [BENCH_NO_TIME]
+
+
+def benchmark_momentum_view(q):
+    return [{"product": "Synthetic benchmark", "state": "Unavailable: no timestamps",
+             "indicators": [], "n": [0, 0]}]
 
 
 class H(BaseHTTPRequestHandler):

@@ -890,6 +890,7 @@
       <select id="filter-mode" class="form-select" style="font-weight:600;">
         <option value="real">Real data (Amazon and Flipkart)</option>
         <option value="demo">Synthetic trend demo</option>
+        <option value="benchmark">AMD Benchmark (10,000 synthetic reviews)</option>
       </select>
       <div class="scope-selects">
         <select id="filter-platform" class="form-select">
@@ -994,7 +995,7 @@
         <p class="note">
           ${AppState.mode === 'real'
           ? 'These numbers come from the Flipkart and Amazon Kaggle datasets. Flipkart has product names, prices in rupees, star ratings and sentiment. Amazon only has positive or negative. Neither has review dates, so none are shown.'
-          : 'This is simulated data. It exists to show how the alerts and momentum tracking behave, not to describe real products.'}
+          : AppState.mode === 'benchmark' ? 'These 10,000 records are locally generated from templates for benchmarking. They are not real customer reviews and their labels have not been independently verified. Categories below are the benchmark topic field, and there are no dates or prices.' : 'This is simulated data. It exists to show how the alerts and momentum tracking behave, not to describe real products.'}
         </p>
 
         <div class="grid-2 section">
@@ -1132,6 +1133,7 @@
                   </div>
                 </div>
                 ${r.review_summary ? `<div class="review-headline">${escapeHtml(r.review_summary)}</div>` : ''}
+                ${r.flags && r.flags.length ? `<div class="review-source" style="margin:0 0 6px;">Edge-case flags: ${escapeHtml(r.flags.join(", "))}</div>` : ''}
                 <div class="review-body">${escapeHtml(r.text)}</div>
               </article>`).join('')}
           </div>
@@ -1165,7 +1167,10 @@
       });
     }
 
+    function benchmarkNA(title) { return `<div class="section"><div class="section-head"><h2 class="section-title">${title}</h2><span class="section-meta">Synthetic benchmark</span></div><p class="note">Benchmark records have no timestamps, so this analysis is unavailable. Switch to the synthetic trend demo to see it.</p></div>`; }
+
     async function renderAlerts(container) {
+      if (AppState.mode === 'benchmark') { container.innerHTML = benchmarkNA('Alerts'); return; }
       const data = await API.get('/api/alerts');
 
       container.innerHTML = `
@@ -1244,6 +1249,7 @@
     }
 
     async function renderMomentum(container) {
+      if (AppState.mode === 'benchmark') { container.innerHTML = benchmarkNA('Momentum'); return; }
       const data = await API.get('/api/momentum');
 
       container.innerHTML = `
@@ -1422,7 +1428,7 @@
       });
 
       document.getElementById('filter-mode').addEventListener('change', e => {
-        AppState.mode = e.target.value;
+        AppState.mode = e.target.value; AppState.platform = ''; AppState.category = ''; AppState.product = ''; AppState.reviewsFilter.page = 1; ['filter-platform','filter-category','filter-product'].forEach(id => { document.getElementById(id).value = ''; });
         renderView();
       });
 
