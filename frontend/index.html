@@ -4,48 +4,47 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Review Forensics - Commerce Intelligence</title>
+  <title>Review Forensics</title>
 
-  <!-- Modern Clean Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&family=Schibsted+Grotesk:wght@400;500;600&family=Outfit:wght@800&family=Dancing+Script:wght@500&display=swap"
     rel="stylesheet">
 
   <style>
-    /* ==========================================================================
-       ATOMIC TEMPLATE DESIGN SYSTEM & EXACT COLOR SCHEME
-       ========================================================================== */
     :root {
+      /* Palette unchanged from the original homepage */
       --bg-hero: #eceae5;
       --bg-page: #f5f4f0;
       --bg-white: #ffffff;
       --color-primary: #0d74ff;
       --color-primary-hover: #005fe0;
-      --text-dark: #222222;
-      --text-muted: #888888;
-      --text-subtle: #aaaaaa;
-      --border-color: #e5e3dd;
-      --border-light: #eeeeee;
-      --font-heading: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --text-dark: #1f1f1f;
+      --text-body: #37352f;
+      --text-muted: #73726c;
+      --border-color: #e2dfd7;
+      --border-light: #ece9e2;
+      --pos: #1e824c;
+      --neg: #c0392b;
+      --neu: #b78103;
+      --font-serif: 'Newsreader', Georgia, serif;
+      --font-sans: 'Schibsted Grotesk', system-ui, sans-serif;
     }
 
-    /* STRICT REQUIREMENT: ZERO BORDER-RADIUS (SHARP ATOMIC EDGES) */
     *,
     *::before,
     *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      border-radius: 0 !important;
+      border-radius: 0;
     }
 
     body {
-      background-color: var(--bg-page);
-      color: var(--text-dark);
-      font-family: var(--font-body);
+      background: var(--bg-page);
+      color: var(--text-body);
+      font-family: var(--font-sans);
       font-size: 14px;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
@@ -56,143 +55,195 @@
       text-decoration: none;
     }
 
+    code {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 12.5px;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* ---------- Hero (layout preserved) ---------- */
     .hero-wrapper {
-      background-color: var(--bg-hero);
+      background: var(--bg-hero);
       position: relative;
       overflow: hidden;
-      min-height: 560px;
+      min-height: 540px;
+      border-bottom: 1px solid var(--border-color);
     }
 
     .container {
-      max-width: 1160px;
+      max-width: 1140px;
       margin: 0 auto;
-      padding: 0 20px;
+      padding: 0 24px;
       position: relative;
     }
 
-    /* Top Navigation Bar */
     .site-header {
-      padding: 38px 0 20px;
+      padding: 34px 0 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
     .site-logo {
-      font-family: var(--font-heading);
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 500;
+      letter-spacing: -0.4px;
       color: var(--text-dark);
       cursor: pointer;
     }
 
     .site-nav {
       display: flex;
-      align-items: center;
       gap: 26px;
       flex-wrap: wrap;
     }
 
     .nav-link {
-      font-family: var(--font-heading);
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.6px;
-      color: var(--text-dark);
+      font-size: 14px;
+      color: var(--text-muted);
       cursor: pointer;
-      position: relative;
-      padding-bottom: 4px;
-      transition: color 0.15s ease;
+      padding-bottom: 5px;
+      border-bottom: 1.5px solid transparent;
+      transition: color .15s ease;
     }
 
-    .nav-link:hover,
+    .nav-link:hover {
+      color: var(--text-dark);
+    }
+
     .nav-link.active {
-      color: var(--color-primary);
+      color: var(--text-dark);
+      border-bottom-color: var(--text-dark);
     }
 
-    .nav-link.active::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 100%;
-      height: 2px;
-      background: var(--color-primary);
-    }
-
-    /* Hero Main Content */
     .hero-content {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 50px 0 90px;
+      padding: 54px 0 84px;
       position: relative;
       z-index: 2;
     }
 
     .hero-left {
-      max-width: 560px;
+      max-width: 540px;
       z-index: 5;
     }
 
-    .hero-tag {
-      font-family: var(--font-heading);
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--color-primary);
-      margin-bottom: 12px;
+    .hero-wordmark {
       display: inline-block;
+      position: relative;
+      font-family: 'Outfit', var(--font-sans);
+      font-weight: 800;
+      font-size: clamp(34px, 6vw, 52px);
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: #000;
+      margin-bottom: 8px;
+    }
+
+    .hero-tagline {
+      font-family: 'Dancing Script', cursive;
+      font-weight: 500;
+      font-size: clamp(22px, 3.4vw, 28px);
+      line-height: 1.2;
+      color: var(--text-dark);
+      margin-bottom: 30px;
+    }
+
+    .hero-wordmark sup {
+      position: absolute;
+      top: 0.08em;
+      right: -0.55em;
+      font-family: var(--font-sans);
+      font-weight: 500;
+      font-size: 0.22em;
+      line-height: 1;
+      letter-spacing: 0;
     }
 
     .hero-title {
-      font-family: var(--font-heading);
-      font-size: 48px;
-      font-weight: 700;
-      line-height: 1.15;
+      font-family: var(--font-serif);
+      font-size: 56px;
+      font-weight: 500;
+      line-height: 1.05;
       color: var(--text-dark);
-      letter-spacing: -1px;
-      margin-bottom: 18px;
+      letter-spacing: -1.4px;
+      margin-bottom: 20px;
     }
 
     .hero-description {
-      font-size: 14.5px;
-      line-height: 1.7;
-      color: var(--text-muted);
+      font-size: 16px;
+      line-height: 1.6;
+      color: #555550;
       margin-bottom: 28px;
-      max-width: 480px;
+      max-width: 440px;
     }
 
     .hero-actions {
       display: flex;
-      align-items: center;
-      gap: 16px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
-    .btn-download {
+    .btn-primary {
       background: var(--color-primary);
-      color: #ffffff;
-      font-family: var(--font-heading);
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.6px;
-      padding: 14px 28px;
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 11px 22px;
       border: none;
       cursor: pointer;
-      display: inline-block;
-      transition: background 0.15s ease;
+      transition: background .15s ease;
     }
 
-    .btn-download:hover {
+    .btn-primary:hover {
       background: var(--color-primary-hover);
     }
 
-    /* Silver Stars Graphic */
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #c8c5bc;
+      color: var(--text-dark);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: border-color .15s ease;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--text-dark);
+    }
+
+    .btn-outline:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    .btn-dark {
+      background: var(--text-dark);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border: none;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+
+    .btn-dark:hover {
+      background: var(--color-primary);
+    }
+
     .silver-stars-container {
       position: absolute;
       right: 0;
@@ -209,229 +260,190 @@
     .silver-stars-svg {
       width: 100%;
       height: 100%;
-      filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.1));
+      filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.08));
     }
 
-    /* Overlapping 3-Column Card */
+    /* ---------- Overlapping 3-column card (layout preserved) ---------- */
     .overlapping-card-wrapper {
-      margin-top: -55px;
+      margin-top: -50px;
       position: relative;
       z-index: 10;
-      margin-bottom: 24px;
+      margin-bottom: 36px;
     }
 
     .feature-columns-box {
       background: var(--bg-white);
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
-      padding: 36px 42px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+      padding: 32px 38px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-      border: 1px solid var(--border-light);
-    }
-
-    .feature-col {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .feature-icon {
-      width: 32px;
-      height: 32px;
-      margin-bottom: 16px;
-      stroke: var(--text-dark);
-      stroke-width: 1.5;
-      opacity: 0.85;
+      gap: 36px;
+      border: 1px solid var(--border-color);
     }
 
     .feature-title {
-      font-family: var(--font-heading);
-      font-size: 15px;
-      font-weight: 700;
+      font-family: var(--font-serif);
+      font-size: 30px;
+      font-weight: 500;
       color: var(--text-dark);
-      margin-bottom: 6px;
-      letter-spacing: -0.2px;
+      margin-bottom: 4px;
+      letter-spacing: -0.5px;
+      line-height: 1.15;
+    }
+
+    .connector-logo {
+      display: block;
+      height: 38px;
+      width: auto;
+      margin-bottom: 12px;
+    }
+
+    .connector-status {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--pos);
+      margin-bottom: 2px;
+    }
+
+    .connector-status.off {
+      color: var(--text-muted);
     }
 
     .feature-text {
-      font-size: 13px;
+      font-size: 13.5px;
       color: var(--text-muted);
-      line-height: 1.6;
+      line-height: 1.5;
     }
 
-    /* Filter Scope Bar */
+    /* ---------- Scope filters: no box, just a rule underneath ---------- */
     .scope-toolbar {
-      background: var(--bg-white);
-      border: 1px solid var(--border-light);
-      padding: 16px 20px;
-      margin-bottom: 20px;
+      padding: 0 0 16px;
+      margin-bottom: 36px;
+      border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 14px;
+      gap: 12px;
       flex-wrap: wrap;
-    }
-
-    .scope-label {
-      font-family: var(--font-heading);
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      color: var(--text-dark);
     }
 
     .scope-selects {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
       align-items: center;
     }
 
     .form-select,
     .form-input {
-      background: var(--bg-page);
-      border: 1px solid var(--border-color);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #c8c5bc;
       color: var(--text-dark);
-      font-family: var(--font-body);
-      font-size: 12.5px;
-      padding: 7px 12px;
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      padding: 6px 4px;
       outline: none;
+      transition: border-color .15s ease;
     }
 
     .form-select:focus,
     .form-input:focus {
-      border-color: var(--color-primary);
+      border-bottom-color: var(--text-dark);
     }
 
-    .provenance-tag {
-      font-size: 11px;
-      padding: 3px 8px;
-      background: #eef4ff;
-      color: var(--color-primary);
-      font-weight: 600;
-      border: 1px solid #c9dcff;
-      display: inline-block;
+    .form-select {
+      cursor: pointer;
     }
 
-    /* Dashboard Panels */
-    .dashboard-panel {
-      background: var(--bg-white);
-      border: 1px solid var(--border-light);
-      padding: 26px 30px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    /* ---------- Open sections (no card chrome) ---------- */
+    .section {
+      margin-bottom: 56px;
     }
 
-    .panel-header {
+    .section-head {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       justify-content: space-between;
-      margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border-light);
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
     }
 
-    .panel-title {
-      font-family: var(--font-heading);
-      font-size: 16px;
-      font-weight: 700;
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 500;
       color: var(--text-dark);
-      letter-spacing: -0.2px;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .section-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .lede {
+      font-size: 14.5px;
+      color: #555550;
+      max-width: 68ch;
+      margin-bottom: 24px;
     }
 
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 56px;
     }
 
-    /* Tables */
+    /* ---------- Tables ---------- */
     .data-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
+      font-size: 14px;
     }
 
     .data-table th {
-      background: var(--bg-page);
-      color: var(--text-dark);
-      font-family: var(--font-heading);
-      font-size: 10.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 12px 8px 0;
+      border-bottom: 1px solid var(--text-dark);
       text-align: left;
     }
 
     .data-table td {
-      padding: 10px 12px;
+      padding: 11px 12px 11px 0;
       border-bottom: 1px solid var(--border-light);
       color: var(--text-dark);
-      vertical-align: middle;
+      vertical-align: top;
+      font-variant-numeric: tabular-nums;
     }
 
-    .data-table tr:hover td {
-      background: #fafaf8;
+    .data-table td.dim {
+      color: var(--text-muted);
     }
 
-    /* Buttons */
-    .btn-flat {
-      background: var(--text-dark);
-      color: #ffffff;
-      font-family: var(--font-heading);
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      padding: 8px 16px;
-      border: none;
-      cursor: pointer;
-    }
-
-    .btn-flat:hover {
-      background: var(--color-primary);
-    }
-
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--border-color);
-      color: var(--text-dark);
-      font-family: var(--font-heading);
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      padding: 7px 14px;
-      cursor: pointer;
-    }
-
-    .btn-outline:hover {
-      border-color: var(--text-dark);
-    }
-
-    /* Bar Component */
+    /* ---------- Bars ---------- */
     .bar-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 9px;
-      font-size: 12.5px;
+      gap: 14px;
+      margin-bottom: 10px;
+      font-size: 14px;
     }
 
     .bar-label {
-      width: 130px;
+      width: 150px;
       color: var(--text-dark);
-      font-weight: 500;
+      flex-shrink: 0;
     }
 
     .bar-container {
       flex: 1;
-      height: 8px;
-      background: var(--bg-page);
-      position: relative;
+      height: 5px;
+      background: #e6e3db;
     }
 
     .bar-fill {
@@ -440,73 +452,281 @@
     }
 
     .bar-fill.neg {
-      background: #d94a4a;
+      background: #c84040;
     }
 
     .bar-fill.neu {
-      background: #f39c12;
+      background: #cca02c;
     }
 
     .bar-value {
-      width: 45px;
+      width: 40px;
       text-align: right;
       color: var(--text-muted);
-      font-size: 12px;
+      font-variant-numeric: tabular-nums;
     }
 
-    /* Notice Card */
-    .notice-card {
-      border: 1px solid var(--border-color);
-      border-left: 4px solid var(--color-primary);
-      padding: 18px 22px;
-      background: #faf9f6;
-      margin-bottom: 20px;
+    .note {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      max-width: 68ch;
+      margin-bottom: 28px;
     }
 
-    .notice-title {
-      font-family: var(--font-heading);
-      font-size: 14px;
-      font-weight: 700;
+    .note strong {
       color: var(--text-dark);
+      font-weight: 600;
+    }
+
+    /* ---------- Reviews: the only boxed content ---------- */
+    .review-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .review-item {
+      background: var(--bg-white);
+      border: 1px solid var(--border-color);
+      padding: 20px 24px;
+    }
+
+    .review-meta-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+
+    .review-product-name {
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .review-product-category,
+    .review-source {
+      color: var(--text-muted);
+      margin-left: 10px;
+    }
+
+    .review-right {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .review-price {
+      color: var(--text-dark);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .review-stars {
+      color: var(--text-dark);
+      letter-spacing: 1px;
+    }
+
+    .sentiment {
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .sentiment.positive {
+      color: var(--pos);
+    }
+
+    .sentiment.negative {
+      color: var(--neg);
+    }
+
+    .sentiment.neutral {
+      color: var(--neu);
+    }
+
+    .review-headline {
+      font-family: var(--font-serif);
+      font-size: 19px;
+      font-weight: 500;
+      color: var(--text-dark);
+      line-height: 1.3;
       margin-bottom: 6px;
     }
 
-    .notice-text {
-      font-size: 13px;
-      color: var(--text-muted);
+    .review-body {
+      font-family: var(--font-serif);
+      font-size: 16px;
       line-height: 1.6;
+      color: #3b3a36;
+      max-width: 78ch;
     }
 
-    /* Alert Item */
+    .review-filters {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .pager {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+    }
+
+    /* ---------- Alerts ---------- */
     .alert-item {
-      border: 1px solid var(--border-color);
-      border-left: 4px solid var(--color-primary);
-      padding: 18px;
-      margin-bottom: 14px;
-      background: var(--bg-white);
+      padding: 22px 0;
+      border-top: 1px solid var(--border-color);
     }
 
-    .alert-item.High {
-      border-left-color: #d94a4a;
+    .alert-item:first-of-type {
+      border-top: 1px solid var(--text-dark);
     }
 
-    .alert-item.Medium {
-      border-left-color: #f39c12;
+    .alert-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
     }
 
-    .quote-box {
-      background: var(--bg-page);
-      border-left: 2px solid var(--border-color);
-      padding: 8px 12px;
-      margin: 8px 0;
-      font-size: 12.5px;
+    .alert-product {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    .alert-topic {
+      color: var(--text-muted);
+      font-size: 13.5px;
+      margin-left: 10px;
+    }
+
+    .quote {
+      border-left: 2px solid #ccc8bf;
+      padding: 2px 0 2px 14px;
+      margin: 12px 0;
+      font-family: var(--font-serif);
+      font-size: 15.5px;
+      font-style: italic;
       color: #444;
+    }
+
+    .quote small {
+      display: block;
+      font-family: var(--font-sans);
+      font-style: normal;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .alert-log {
+      margin-top: 14px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .alert-log .form-input {
+      flex: 1;
+    }
+
+    /* ---------- Momentum ---------- */
+    .momentum-block {
+      margin-bottom: 36px;
+    }
+
+    .momentum-name {
+      font-family: var(--font-serif);
+      font-size: 21px;
+      font-weight: 500;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+
+    .momentum-state {
+      color: var(--color-primary);
+    }
+
+    /* ---------- Inference result ---------- */
+    .infer-result {
+      display: none;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .infer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .infer-grid span.k {
+      display: block;
+      color: var(--text-muted);
+      font-size: 12.5px;
+    }
+
+    .empty {
+      padding: 36px 0;
+      color: var(--text-muted);
+    }
+
+    /* Compact mode: every tab except Overview shows only SKIRA and the content */
+    body.compact .hero-wrapper {
+      min-height: 0;
+    }
+
+    body.compact .hero-content {
+      padding: 8px 0 36px;
+    }
+
+    body.compact .hero-wordmark {
+      margin-bottom: 0;
+    }
+
+    body.compact .hero-tagline,
+    body.compact .hero-actions,
+    body.compact .silver-stars-container,
+    body.compact .overlapping-card-wrapper {
+      display: none;
+    }
+
+    body.compact .site-logo {
+      display: none;
+    }
+
+    body.compact .site-nav {
+      margin-left: auto;
+    }
+
+    body.compact .hero-wordmark {
+      cursor: pointer;
+    }
+
+    body.compact .scope-toolbar {
+      margin-top: 40px;
     }
 
     @media (max-width: 900px) {
       .hero-content {
         flex-direction: column;
         padding: 30px 0 50px;
+        align-items: flex-start;
+      }
+
+      .hero-title {
+        font-size: 42px;
       }
 
       .silver-stars-container {
@@ -517,10 +737,28 @@
 
       .feature-columns-box {
         grid-template-columns: 1fr;
+        gap: 24px;
       }
 
       .grid-2 {
         grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .bar-label {
+        width: 110px;
+      }
+
+      .data-table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+        scroll-behavior: auto !important;
       }
     }
   </style>
@@ -528,39 +766,32 @@
 
 <body>
 
-  <!-- HERO WRAPPER -->
   <div class="hero-wrapper">
     <div class="container">
 
-      <!-- SITE HEADER -->
       <header class="site-header">
         <div class="site-logo" onclick="switchView('overview')">Review Forensics</div>
         <nav class="site-nav">
           <span class="nav-link active" data-view="overview">Overview</span>
-          <span class="nav-link" data-view="reviews">Explorer</span>
-          <span class="nav-link" data-view="alerts">Signals &amp; Alerts</span>
+          <span class="nav-link" data-view="reviews">Reviews</span>
+          <span class="nav-link" data-view="alerts">Alerts</span>
           <span class="nav-link" data-view="momentum">Momentum</span>
-          <span class="nav-link" data-view="quality">Quality &amp; Provenance</span>
-          <span class="nav-link" data-view="settings">AMD GPU &amp; Settings</span>
+          <span class="nav-link" data-view="quality">Data sources</span>
+          <span class="nav-link" data-view="settings">AMD inference</span>
         </nav>
       </header>
 
-      <!-- HERO CONTENT -->
       <div class="hero-content">
         <div class="hero-left">
-          <div class="hero-tag">COMMERCE INTELLIGENCE &bull; AMD ACT III HACKATHON</div>
-          <h1 class="hero-title">Review forensics.<br>Real marketplace data.</h1>
-          <p class="hero-description">
-            Standardized customer feedback analytics powered by downloaded Amazon and Flipkart datasets,
-            with honest data provenance, category pricing insights, and an AMD ROCm GPU AI inference architecture.
-          </p>
+          <div class="hero-wordmark" role="img" aria-label="Skira" onclick="switchView('overview')">SKIRA<sup
+              aria-hidden="true">®</sup></div>
+          <p class="hero-tagline">Every review tells a story.</p>
           <div class="hero-actions">
-            <button class="btn-download" onclick="switchView('reviews')">EXPLORE REVIEWS</button>
-            <button class="btn-outline" onclick="switchView('quality')">DATA PROVENANCE</button>
+            <button class="btn-primary" onclick="switchView('reviews')">Read the reviews</button>
+            <button class="btn-outline" onclick="switchView('quality')">See where the data comes from</button>
           </div>
         </div>
 
-        <!-- 5 SILVER STARS GRAPHIC -->
         <div class="silver-stars-container">
           <svg class="silver-stars-svg" viewBox="0 0 540 480" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -592,11 +823,21 @@
                 <polygon points="0,0 -38,27.6 -95.1,-30.9" fill="url(#silver-face-mid)" />
               </g>
             </defs>
-            <g transform="translate(410, 310) rotate(-12) scale(1.35)"><use href="#faceted-star" /></g>
-            <g transform="translate(460, 140) rotate(18) scale(0.95)"><use href="#faceted-star" /></g>
-            <g transform="translate(240, 270) rotate(-24) scale(1.05)"><use href="#faceted-star" /></g>
-            <g transform="translate(330, 90) rotate(8) scale(0.72)"><use href="#faceted-star" /></g>
-            <g transform="translate(180, 410) rotate(-6) scale(0.82)"><use href="#faceted-star" /></g>
+            <g transform="translate(410, 310) rotate(-12) scale(1.35)">
+              <use href="#faceted-star" />
+            </g>
+            <g transform="translate(460, 140) rotate(18) scale(0.95)">
+              <use href="#faceted-star" />
+            </g>
+            <g transform="translate(240, 270) rotate(-24) scale(1.05)">
+              <use href="#faceted-star" />
+            </g>
+            <g transform="translate(330, 90) rotate(8) scale(0.72)">
+              <use href="#faceted-star" />
+            </g>
+            <g transform="translate(180, 410) rotate(-6) scale(0.82)">
+              <use href="#faceted-star" />
+            </g>
           </svg>
         </div>
       </div>
@@ -604,79 +845,72 @@
     </div>
   </div>
 
-  <!-- OVERLAPPING 3-COLUMN CARD -->
+  <!-- Overlapping stat card (icons removed, numbers lead) -->
   <div class="container overlapping-card-wrapper">
     <div class="feature-columns-box">
-      <div class="feature-col">
-        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      <div class="connector">
+        <svg class="connector-logo" viewBox="0 0 120 40" role="img" aria-label="Amazon">
+          <text x="2" y="24" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="28"
+            letter-spacing="-1" fill="#111">amazon</text>
+          <path d="M10 30 Q 52 42 94 27" fill="none" stroke="#ff9900" stroke-width="3.2" stroke-linecap="round" />
+          <path d="M88 24 L96 26.5 L91 33" fill="none" stroke="#ff9900" stroke-width="3" stroke-linecap="round"
+            stroke-linejoin="round" />
         </svg>
-        <div class="feature-title" id="stat-reviews-title">Loading...</div>
-        <div class="feature-text" id="stat-reviews-desc">
-          Unified 10-field schema across Flipkart and Amazon Kaggle datasets.
-        </div>
+        <div class="connector-status">Connected</div>
+        <div class="feature-text">50,000 sampled reviews from the Amazon polarity dataset.</div>
       </div>
 
-      <div class="feature-col">
-        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      <div class="connector">
+        <svg class="connector-logo" viewBox="0 0 120 40" role="img" aria-label="Flipkart">
+          <rect x="2" y="4" width="30" height="32" fill="#2874f0" />
+          <text x="17" y="30" text-anchor="middle" font-family="Georgia, serif" font-weight="700" font-style="italic"
+            font-size="26" fill="#ffe500">f</text>
+          <text x="38" y="28" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-style="italic"
+            font-size="22" letter-spacing="-0.5" fill="#2874f0">Flipkart</text>
         </svg>
-        <div class="feature-title" id="stat-rating-title">Loading...</div>
-        <div class="feature-text" id="stat-rating-desc">
-          Honest rating calculation (Flipkart 1–5 stars; Amazon binary polarity tracked in sentiment).
-        </div>
+        <div class="connector-status">Connected</div>
+        <div class="feature-text">205,047 reviews with product names, prices and star ratings.</div>
       </div>
 
-      <div class="feature-col">
-        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-          <line x1="12" y1="9" x2="12" y2="13" />
-          <line x1="12" y1="17" x2="12.01" y2="17" />
+      <div class="connector">
+        <svg class="connector-logo" viewBox="0 0 120 40" role="img" aria-label="AMD">
+          <text x="2" y="30" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="32"
+            letter-spacing="2" fill="#111">AMD</text>
+          <path d="M88 8 H108 V28 Z" fill="#111" />
         </svg>
-        <div class="feature-title" id="stat-alerts-title">Loading...</div>
-        <div class="feature-text" id="stat-alerts-desc">
-          Z-test statistical anomaly detection engine (requires dated records / demo mode).
-        </div>
+        <div class="connector-status" id="conn-amd-status">Checking…</div>
+        <div class="feature-text">Sentiment and complaint classification through AMD Token Factory.</div>
       </div>
     </div>
   </div>
 
-  <!-- MAIN DASHBOARD CONTENT AREA -->
-  <div class="container" style="margin-bottom: 60px;">
+  <div class="container" style="margin-bottom: 80px;">
 
-    <!-- FILTER SCOPE BAR -->
     <div class="scope-toolbar">
-      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <span class="scope-label">Scope Filter:</span>
-        <select id="filter-mode" class="form-select" style="font-weight:600; color:var(--color-primary);">
-          <option value="real">Mode: Real Kaggle Datasets (Amazon &amp; Flipkart)</option>
-          <option value="demo">Mode: Synthetic Trend Anomaly Demo</option>
-        </select>
-      </div>
+      <select id="filter-mode" class="form-select" style="font-weight:600;">
+        <option value="real">Real data (Amazon and Flipkart)</option>
+        <option value="demo">Synthetic trend demo</option>
+      </select>
       <div class="scope-selects">
         <select id="filter-platform" class="form-select">
-          <option value="">All Sources</option>
+          <option value="">All sources</option>
         </select>
         <select id="filter-category" class="form-select">
-          <option value="">All Categories</option>
+          <option value="">All categories</option>
         </select>
-        <select id="filter-product" class="form-select" style="max-width:240px;">
-          <option value="">All Products</option>
+        <select id="filter-product" class="form-select" style="max-width:220px;">
+          <option value="">All products</option>
         </select>
-        <button id="btn-reset-filters" class="btn-outline" style="padding:6px 12px; font-size:11px;">Clear Filters</button>
+        <button id="btn-reset-filters" class="btn-outline" style="padding:5px 12px; font-size:13px;">Reset</button>
       </div>
     </div>
 
-    <!-- VIEW CONTAINER -->
     <div id="view-content">
-      <div style="padding: 40px; text-align: center; color: var(--text-muted);">
-        Loading review intelligence data...
-      </div>
+      <div class="empty" style="text-align:center;">Loading…</div>
     </div>
 
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
   <script>
     const AppState = {
       currentView: 'overview',
@@ -684,13 +918,7 @@
       platform: '',
       category: '',
       product: '',
-      reviewsFilter: {
-        page: 1,
-        q: '',
-        sentiment: '',
-        rating: '',
-        sort: ''
-      }
+      reviewsFilter: { page: 1, q: '', sentiment: '', rating: '', sort: '' }
     };
 
     function escapeHtml(s) {
@@ -699,387 +927,241 @@
     }
 
     const API = {
-      buildQuery(params = {}) {
-        const q = new URLSearchParams();
-        q.set('mode', AppState.mode);
-        if (AppState.platform) q.set('platform', AppState.platform);
-        if (AppState.category) q.set('category', AppState.category);
-        if (AppState.product) q.set('product', AppState.product);
-        for (const [k, v] of Object.entries(params)) {
-          if (v !== '' && v !== null && v !== undefined) q.set(k, v);
-        }
-        return q.toString();
-      },
-
       async get(endpoint, params = {}) {
-        const res = await fetch(endpoint + '?' + this.buildQuery(params));
-        return res.json();
+        const url = new URL(endpoint, window.location.origin);
+        Object.entries(params).forEach(([k, v]) => {
+          if (v !== '' && v !== null && v !== undefined) url.searchParams.set(k, v);
+        });
+        url.searchParams.set('mode', AppState.mode);
+        if (AppState.platform) url.searchParams.set('platform', AppState.platform);
+        if (AppState.category) url.searchParams.set('category', AppState.category);
+        if (AppState.product) url.searchParams.set('product', AppState.product);
+        const res = await fetch(url.toString());
+        if (!res.ok) throw new Error(`API error: ${res.statusText}`);
+        return await res.json();
       },
-
       async post(endpoint, data = {}) {
         const res = await fetch(endpoint, {
           method: 'POST',
-          headers: typeof data === 'string' ? { 'Content-Type': 'text/csv' } : { 'Content-Type': 'application/json' },
-          body: typeof data === 'string' ? data : JSON.stringify(data)
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
         });
-        return res.json();
+        if (!res.ok) throw new Error(`API error: ${res.statusText}`);
+        return await res.json();
       }
     };
 
     function switchView(viewName) {
       AppState.currentView = viewName;
-      document.querySelectorAll('.nav-link').forEach(link => {
+      document.querySelectorAll('.site-nav .nav-link').forEach(link => {
         link.classList.toggle('active', link.dataset.view === viewName);
       });
+      document.body.classList.toggle('compact', viewName !== 'overview');
       renderView();
-    }
-
-    async function updateShell() {
-      const summary = await API.get('/api/summary');
-
-      // Update 3 feature cards
-      document.getElementById('stat-reviews-title').textContent = `${summary.total.toLocaleString()} Reviews`;
-      document.getElementById('stat-rating-title').textContent = summary.avg ? `${summary.avg} ★ Average` : '– (Amazon Polarity)';
-      
-      if (AppState.mode === 'real') {
-        document.getElementById('stat-alerts-title').textContent = `${summary.categories.length} Product Categories`;
-        document.getElementById('stat-alerts-desc').textContent = `₹${(summary.price_stats?.avg || 0).toLocaleString()} avg price across 958 Flipkart products.`;
-      } else {
-        document.getElementById('stat-alerts-title').textContent = `${summary.active_alerts} Active Anomalies`;
-        document.getElementById('stat-alerts-desc').textContent = 'Statistical z-test early warnings on simulated 7d vs 28d windows.';
-      }
-
-      // Populate filter dropdowns
-      const platSelect = document.getElementById('filter-platform');
-      const catSelect = document.getElementById('filter-category');
-      const prodSelect = document.getElementById('filter-product');
-
-      platSelect.innerHTML = '<option value="">All Sources</option>' +
-        summary.all_platforms.map(p => `<option value="${escapeHtml(p)}" ${p === AppState.platform ? 'selected' : ''}>${escapeHtml(p)}</option>`).join('');
-
-      catSelect.innerHTML = '<option value="">All Categories</option>' +
-        summary.all_categories.map(c => `<option value="${escapeHtml(c)}" ${c === AppState.category ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('');
-
-      prodSelect.innerHTML = '<option value="">All Products</option>' +
-        summary.products.map(p => `<option value="${escapeHtml(p)}" ${p === AppState.product ? 'selected' : ''}>${escapeHtml(p)}</option>`).join('');
-
-      return summary;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     async function renderView() {
       const container = document.getElementById('view-content');
-      container.innerHTML = `<div style="padding: 40px; text-align: center; color: var(--text-muted);">Loading view data...</div>`;
-
+      container.innerHTML = '<div class="empty" style="text-align:center;">Loading…</div>';
       try {
-        const summary = await updateShell();
-
-        if (AppState.currentView === 'overview') {
-          renderOverview(container, summary);
-        } else if (AppState.currentView === 'reviews') {
-          await renderReviews(container, summary);
-        } else if (AppState.currentView === 'alerts') {
-          await renderAlerts(container);
-        } else if (AppState.currentView === 'momentum') {
-          await renderMomentum(container);
-        } else if (AppState.currentView === 'quality') {
-          await renderQuality(container);
-        } else if (AppState.currentView === 'settings') {
-          renderSettings(container, summary);
-        }
+        const summary = await API.get('/api/summary');
+        updateHeaderStats(summary);
+        const v = AppState.currentView;
+        if (v === 'overview') renderOverview(container, summary);
+        else if (v === 'reviews') await renderReviews(container);
+        else if (v === 'alerts') await renderAlerts(container);
+        else if (v === 'momentum') await renderMomentum(container);
+        else if (v === 'quality') await renderQuality(container);
+        else if (v === 'settings') renderSettings(container, summary);
       } catch (err) {
-        container.innerHTML = `<div class="dashboard-panel" style="color:#d94a4a;">Failed to load view: ${escapeHtml(err.message)}</div>`;
+        container.innerHTML = `<div class="section"><div class="section-title" style="color:var(--neg);">Couldn’t load this page</div><p class="note" style="margin-top:8px;">${escapeHtml(err.message)}. Check that the backend is running, then reload.</p></div>`;
       }
     }
+
+    const TOPIC_NOTES = {
+      cooling: 'Airflow and temperature',
+      battery: 'Battery life',
+      price: 'Value for money',
+      quality: 'Build and durability',
+      delivery: 'Packaging and delivery'
+    };
 
     function renderOverview(container, s) {
       const topics = Object.entries(s.topics || {}).sort((a, b) => (b[1].neg + b[1].pos) - (a[1].neg + a[1].pos));
 
       container.innerHTML = `
-        ${AppState.mode === 'real' ? `
-          <div class="notice-card">
-            <div class="notice-title">Active Data Source: Downloaded Kaggle Datasets (Amazon &amp; Flipkart)</div>
-            <div class="notice-text">
-              Showing analytics computed from real reviews. Flipkart provides verified product names, INR prices, 1–5 star ratings, and sentiment. Amazon Reviews Polarity provides 2-class sentiment (positive / negative). Neither raw dataset contains review timestamps.
-            </div>
-          </div>
-        ` : `
-          <div class="notice-card" style="border-left-color: #f39c12;">
-            <div class="notice-title">Active Mode: Synthetic Trend Anomaly Demo</div>
-            <div class="notice-text">
-              Displaying simulated dated review records for testing statistical early warnings and momentum tracking.
-            </div>
-          </div>
-        `}
+        <p class="note">
+          ${AppState.mode === 'real'
+          ? 'These numbers come from the Flipkart and Amazon Kaggle datasets. Flipkart has product names, prices in rupees, star ratings and sentiment. Amazon only has positive or negative. Neither has review dates, so none are shown.'
+          : 'This is simulated data. It exists to show how the alerts and momentum tracking behave, not to describe real products.'}
+        </p>
 
-        <div class="grid-2">
-          <!-- Rating Distribution -->
-          <div class="dashboard-panel">
-            <div class="panel-header">
-              <div class="panel-title">Rating Distribution (1–5 Stars)</div>
-              <span class="provenance-tag">${s.rated_count ? s.rated_count.toLocaleString() + ' rated' : 'Unrated in Amazon'}</span>
+        <div class="grid-2 section">
+          <div>
+            <div class="section-head">
+              <h2 class="section-title">Star ratings</h2>
+              <span class="section-meta">${s.rated_count ? s.rated_count.toLocaleString() + ' rated reviews' : 'No star ratings in this scope'}</span>
             </div>
-            <div>
-              ${[5, 4, 3, 2, 1].map(stars => {
-                const count = s.ratings[String(stars)] || 0;
-                const totalRated = s.rated_count || 1;
-                const pct = Math.round((count / totalRated) * 100);
-                return `
-                  <div class="bar-item">
-                    <span class="bar-label">${stars} Stars (${count.toLocaleString()})</span>
-                    <div class="bar-container">
-                      <div class="bar-fill" style="width: ${pct}%;"></div>
-                    </div>
-                    <span class="bar-value">${pct}%</span>
-                  </div>
-                `;
-              }).join('')}
-              ${!s.rated_count ? `<p style="font-size:12px; color:var(--text-muted); margin-top:8px;">* Amazon Polarity dataset contains 2-class sentiment rather than 1–5 star ratings.</p>` : ''}
-            </div>
+            ${[5, 4, 3, 2, 1].map(stars => {
+            const count = s.ratings[String(stars)] || 0;
+            const pct = Math.round((count / (s.rated_count || 1)) * 100);
+            return `
+                <div class="bar-item">
+                  <span class="bar-label">${stars} star${stars > 1 ? 's' : ''} (${count.toLocaleString()})</span>
+                  <div class="bar-container"><div class="bar-fill" style="width:${pct}%;"></div></div>
+                  <span class="bar-value">${pct}%</span>
+                </div>`;
+          }).join('')}
           </div>
 
-          <!-- Sentiment Distribution -->
-          <div class="dashboard-panel">
-            <div class="panel-header">
-              <div class="panel-title">Sentiment Distribution</div>
-              <span class="provenance-tag">All Sources</span>
+          <div>
+            <div class="section-head">
+              <h2 class="section-title">Sentiment</h2>
+              <span class="section-meta">${s.total ? s.total.toLocaleString() + ' reviews' : ''}</span>
             </div>
-            <div>
-              ${['positive', 'neutral', 'negative'].map(sent => {
-                const count = s.sentiment[sent] || 0;
-                const pct = s.total > 0 ? Math.round((count / s.total) * 100) : 0;
-                return `
-                  <div class="bar-item">
-                    <span class="bar-label" style="text-transform:capitalize;">${sent} (${count.toLocaleString()})</span>
-                    <div class="bar-container">
-                      <div class="bar-fill ${sent === 'negative' ? 'neg' : sent === 'neutral' ? 'neu' : ''}" style="width: ${pct}%;"></div>
-                    </div>
-                    <span class="bar-value">${pct}%</span>
-                  </div>
-                `;
-              }).join('')}
-            </div>
+            ${['positive', 'neutral', 'negative'].map(sent => {
+            const count = s.sentiment[sent] || 0;
+            const pct = s.total > 0 ? Math.round((count / s.total) * 100) : 0;
+            return `
+                <div class="bar-item">
+                  <span class="bar-label" style="text-transform:capitalize;">${sent} (${count.toLocaleString()})</span>
+                  <div class="bar-container"><div class="bar-fill ${sent === 'negative' ? 'neg' : sent === 'neutral' ? 'neu' : ''}" style="width:${pct}%;"></div></div>
+                  <span class="bar-value">${pct}%</span>
+                </div>`;
+          }).join('')}
           </div>
         </div>
 
-        <!-- Product Category & Price Comparison Table -->
-        <div class="dashboard-panel">
-          <div class="panel-header">
-            <div class="panel-title">Product Category &amp; Price Breakdown</div>
-            <span class="provenance-tag">Verified Flipkart &amp; Amazon Categories</span>
-          </div>
+        <div class="section">
+          <div class="section-head"><h2 class="section-title">Categories</h2></div>
           <table class="data-table">
-            <thead>
-              <tr>
-                <th>Category</th>
-                <th>Review Volume</th>
-                <th>Average Rating</th>
-                <th>Average Price (INR)</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Category</th><th>Reviews</th><th>Avg rating</th><th>Avg price</th></tr></thead>
             <tbody>
               ${s.categories.map(c => `
                 <tr>
-                  <td><strong>${escapeHtml(c.category)}</strong></td>
-                  <td>${c.count.toLocaleString()} reviews</td>
+                  <td>${escapeHtml(c.category)}</td>
+                  <td>${c.count.toLocaleString()}</td>
                   <td>${c.avg_rating ? c.avg_rating + ' ★' : '–'}</td>
                   <td>${c.avg_price ? '₹' + c.avg_price.toLocaleString() : '–'}</td>
-                </tr>
-              `).join('')}
+                </tr>`).join('')}
             </tbody>
           </table>
         </div>
 
-        <!-- Feedback Topics Matrix -->
-        <div class="dashboard-panel">
-          <div class="panel-header">
-            <div class="panel-title">Common Feedback Topics (Praise vs Complaints)</div>
-          </div>
+        <div class="section">
+          <div class="section-head"><h2 class="section-title">What people praise and complain about</h2></div>
           <table class="data-table">
-            <thead>
-              <tr>
-                <th>Topic</th>
-                <th>Praise Mentions</th>
-                <th>Complaint Mentions</th>
-                <th>Primary Subject</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Topic</th><th>Praise</th><th>Complaints</th><th>About</th></tr></thead>
             <tbody>
               ${topics.map(([t, v]) => `
                 <tr>
-                  <td><strong style="text-transform:capitalize;">${escapeHtml(t)}</strong></td>
-                  <td style="color:#27ae60; font-weight:600;">+ ${v.pos.toLocaleString()}</td>
-                  <td style="color:#d94a4a; font-weight:600;">− ${v.neg.toLocaleString()}</td>
-                  <td style="color:var(--text-muted);">${t === 'cooling' ? 'Airflow & temperature' : t === 'battery' ? 'Power & charge retention' : t === 'price' ? 'Value for money' : t === 'quality' ? 'Durability & materials' : 'Order & service'}</td>
-                </tr>
-              `).join('')}
+                  <td style="text-transform:capitalize;">${escapeHtml(t)}</td>
+                  <td style="color:var(--pos);">${v.pos.toLocaleString()}</td>
+                  <td style="color:var(--neg);">${v.neg.toLocaleString()}</td>
+                  <td class="dim">${escapeHtml(TOPIC_NOTES[t] || '')}</td>
+                </tr>`).join('')}
             </tbody>
           </table>
         </div>
 
-        <!-- Marketplace Channel Breakdown -->
-        <div class="dashboard-panel">
-          <div class="panel-header">
-            <div class="panel-title">Marketplace Source Comparison</div>
-          </div>
+        <div class="section">
+          <div class="section-head"><h2 class="section-title">Sources</h2></div>
           <table class="data-table">
-            <thead>
-              <tr>
-                <th>Marketplace Channel</th>
-                <th>Sampled Volume</th>
-                <th>Average Rating</th>
-                <th>Average Price</th>
-                <th>Fields Available in Dataset</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Source</th><th>Reviews</th><th>Avg rating</th><th>Avg price</th><th>Fields available</th></tr></thead>
             <tbody>
               ${s.platforms.map(p => `
                 <tr>
-                  <td><strong>${escapeHtml(p.platform)}</strong></td>
-                  <td>${p.n.toLocaleString()} reviews</td>
-                  <td>${p.avg ? p.avg + ' ★' : '– (Binary Polarity)'}</td>
+                  <td>${escapeHtml(p.platform)}</td>
+                  <td>${p.n.toLocaleString()}</td>
+                  <td>${p.avg ? p.avg + ' ★' : 'Positive or negative only'}</td>
                   <td>${p.avg_price ? '₹' + p.avg_price.toLocaleString() : '–'}</td>
-                  <td>${p.platform === 'Flipkart' ? 'Product, Price, 1–5 Rating, Review, Sentiment' : 'Review Text, Title, Polarity Sentiment'}</td>
-                </tr>
-              `).join('')}
+                  <td class="dim">${p.platform === 'Flipkart' ? 'Product, price, rating, headline, review text, sentiment' : 'Title, review text, sentiment'}</td>
+                </tr>`).join('')}
             </tbody>
           </table>
         </div>
       `;
-
-      const btn = container.querySelector('#btn-run-infer');
-      if (btn) {
-        btn.addEventListener('click', async () => {
-          const txt = container.querySelector('#infer-input').value.trim();
-          const rating = container.querySelector('#infer-rating').value;
-          const resBox = container.querySelector('#infer-result');
-          if (!txt) return;
-          btn.disabled = true;
-          btn.textContent = 'RUNNING...';
-          resBox.style.display = 'block';
-          resBox.innerHTML = '<span style="color:#666;">Querying AMD inference pipeline...</span>';
-          try {
-            const out = await API.post('/api/amd_infer', { text: txt, rating: parseFloat(rating) });
-            resBox.innerHTML = `
-              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; font-size:13px;">
-                <div><strong>Sentiment:</strong> <span class="badge ${out.sentiment}">${escapeHtml(out.sentiment)}</span></div>
-                <div><strong>Confidence:</strong> ${(out.confidence * 100).toFixed(0)}%</div>
-                <div><strong>Category:</strong> <code>${escapeHtml(out.complaint_category || 'none')}</code></div>
-                <div><strong>Engine:</strong> <span style="font-weight:600; color:#1a56db;">${escapeHtml(out.processing_engine)}</span></div>
-              </div>
-              <div style="margin-top:10px; font-size:13px;"><strong>Diagnosed Issue:</strong> ${escapeHtml(out.product_issue || 'None diagnosed')}</div>
-              <div style="margin-top:4px; font-size:13px;"><strong>Recommended Action:</strong> ${escapeHtml(out.recommended_action || 'None required')}</div>
-            `;
-          } catch (e) {
-            resBox.innerHTML = `<span style="color:#d94a4a;">Inference error: ${escapeHtml(e.message)}</span>`;
-          } finally {
-            btn.disabled = false;
-            btn.textContent = 'RUN INFERENCE';
-          }
-        });
-      }
     }
 
-    async function renderReviews(container, s) {
+    async function renderReviews(container) {
       const data = await API.get('/api/reviews', AppState.reviewsFilter);
 
       container.innerHTML = `
-        <div class="dashboard-panel">
-          <div class="panel-header">
-            <div class="panel-title">Review Explorer (${data.total.toLocaleString()} matching reviews)</div>
-            <span class="provenance-tag">Page ${data.page} of ${data.pages}</span>
+        <div class="section">
+          <div class="section-head">
+            <h2 class="section-title">Reviews</h2>
+            <span class="section-meta">${data.total.toLocaleString()} found, page ${data.page} of ${data.pages}</span>
           </div>
 
-          <!-- Filter Toolbar -->
-          <div style="display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;">
-            <input type="text" id="rev-q" class="form-input" placeholder="Search review text..." value="${escapeHtml(AppState.reviewsFilter.q)}" style="flex:1; min-width:180px;">
+          <div class="review-filters">
+            <input type="text" id="rev-q" class="form-input" placeholder="Search review text" value="${escapeHtml(AppState.reviewsFilter.q)}" style="flex:1; min-width:200px;">
             <select id="rev-sent" class="form-select">
-              <option value="">All Sentiments</option>
+              <option value="">Any sentiment</option>
               <option value="positive" ${AppState.reviewsFilter.sentiment === 'positive' ? 'selected' : ''}>Positive</option>
               <option value="neutral" ${AppState.reviewsFilter.sentiment === 'neutral' ? 'selected' : ''}>Neutral</option>
               <option value="negative" ${AppState.reviewsFilter.sentiment === 'negative' ? 'selected' : ''}>Negative</option>
             </select>
             <select id="rev-rating" class="form-select">
-              <option value="">All Ratings</option>
-              ${[5, 4, 3, 2, 1].map(r => `<option value="${r}" ${String(AppState.reviewsFilter.rating) === String(r) ? 'selected' : ''}>${r} Stars</option>`).join('')}
+              <option value="">Any rating</option>
+              ${[5, 4, 3, 2, 1].map(r => `<option value="${r}" ${String(AppState.reviewsFilter.rating) === String(r) ? 'selected' : ''}>${r} stars</option>`).join('')}
             </select>
             <select id="rev-sort" class="form-select">
-              <option value="">Default Order</option>
-              <option value="rating" ${AppState.reviewsFilter.sort === 'rating' ? 'selected' : ''}>Sort by Rating</option>
-              <option value="price" ${AppState.reviewsFilter.sort === 'price' ? 'selected' : ''}>Sort by Price</option>
+              <option value="">Default order</option>
+              <option value="rating" ${AppState.reviewsFilter.sort === 'rating' ? 'selected' : ''}>By rating</option>
+              <option value="price" ${AppState.reviewsFilter.sort === 'price' ? 'selected' : ''}>By price</option>
             </select>
-            <button id="rev-search-btn" class="btn-flat">Filter</button>
+            <button id="rev-search-btn" class="btn-dark">Apply</button>
           </div>
 
-          <!-- Reviews Table -->
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th style="width:90px;">Source</th>
-                <th style="width:200px;">Product / Category</th>
-                <th style="width:75px;">Rating</th>
-                <th style="width:85px;">Price</th>
-                <th>Review Content</th>
-                <th style="width:105px;">Sentiment</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${data.rows.map(r => `
-                <tr>
-                  <td><span class="provenance-tag">${escapeHtml(r.source)}</span></td>
-                  <td>
-                    <div style="font-weight:600; font-size:12.5px; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                      ${escapeHtml(r.product)}
-                    </div>
-                    <div style="font-size:11px; color:var(--text-muted);">${escapeHtml(r.category || 'General')}</div>
-                  </td>
-                  <td><strong>${r.rating ? r.rating + ' ★' : '–'}</strong></td>
-                  <td>${r.price ? '₹' + r.price.toLocaleString() : '–'}</td>
-                  <td>
-                    ${r.review_summary ? `<div style="font-weight:600; margin-bottom:2px;">“${escapeHtml(r.review_summary)}”</div>` : ''}
-                    <div style="font-size:13px; color:#333;">${escapeHtml(r.text)}</div>
-                  </td>
-                  <td>
-                    <span style="font-weight:700; text-transform:capitalize; color:${r.sentiment === 'positive' ? '#27ae60' : r.sentiment === 'negative' ? '#d94a4a' : '#f39c12'};">
-                      ${escapeHtml(r.sentiment)}
-                    </span>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+          <div class="review-feed">
+            ${data.rows.length === 0 ? `
+              <div class="empty">No reviews match these filters. Try removing one.</div>
+            ` : data.rows.map(r => `
+              <article class="review-item">
+                <div class="review-meta-row">
+                  <div>
+                    <span class="review-product-name">${escapeHtml(r.product || 'Unnamed product')}</span>
+                    ${r.category ? `<span class="review-product-category">${escapeHtml(r.category)}</span>` : ''}
+                    <span class="review-source">${escapeHtml(r.source)}</span>
+                  </div>
+                  <div class="review-right">
+                    ${r.price ? `<span class="review-price">₹${r.price.toLocaleString()}</span>` : ''}
+                    ${r.rating ? `<span class="review-stars" aria-label="${r.rating} out of 5">${'★'.repeat(Math.round(r.rating))}${'☆'.repeat(5 - Math.round(r.rating))}</span>` : ''}
+                    <span class="sentiment ${escapeHtml(r.sentiment)}">${escapeHtml(r.sentiment)}</span>
+                  </div>
+                </div>
+                ${r.review_summary ? `<div class="review-headline">${escapeHtml(r.review_summary)}</div>` : ''}
+                <div class="review-body">${escapeHtml(r.text)}</div>
+              </article>`).join('')}
+          </div>
 
-          <!-- Pagination -->
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
-            <span style="font-size:12px; color:var(--text-muted);">Showing page ${data.page} of ${data.pages} (${data.total.toLocaleString()} total)</span>
-            <div style="display:flex; gap:6px;">
-              <button id="rev-prev" class="btn-outline" ${data.page <= 1 ? 'disabled style="opacity:0.4;"' : ''}>Prev</button>
-              <button id="rev-next" class="btn-outline" ${data.page >= data.pages ? 'disabled style="opacity:0.4;"' : ''}>Next</button>
+          <div class="pager">
+            <span class="section-meta">${data.total.toLocaleString()} reviews</span>
+            <div style="display:flex; gap:8px;">
+              <button id="rev-prev" class="btn-outline" ${data.page <= 1 ? 'disabled' : ''}>Previous</button>
+              <button id="rev-next" class="btn-outline" ${data.page >= data.pages ? 'disabled' : ''}>Next</button>
             </div>
           </div>
         </div>
       `;
 
-      document.getElementById('rev-search-btn').addEventListener('click', () => {
+      const applyFilters = () => {
         AppState.reviewsFilter.q = document.getElementById('rev-q').value.trim();
         AppState.reviewsFilter.sentiment = document.getElementById('rev-sent').value;
         AppState.reviewsFilter.rating = document.getElementById('rev-rating').value;
         AppState.reviewsFilter.sort = document.getElementById('rev-sort').value;
         AppState.reviewsFilter.page = 1;
         renderView();
-      });
+      };
+      document.getElementById('rev-search-btn').addEventListener('click', applyFilters);
+      document.getElementById('rev-q').addEventListener('keydown', e => { if (e.key === 'Enter') applyFilters(); });
 
       document.getElementById('rev-prev').addEventListener('click', () => {
-        if (AppState.reviewsFilter.page > 1) {
-          AppState.reviewsFilter.page--;
-          renderView();
-        }
+        if (AppState.reviewsFilter.page > 1) { AppState.reviewsFilter.page--; renderView(); }
       });
-
       document.getElementById('rev-next').addEventListener('click', () => {
-        if (AppState.reviewsFilter.page < data.pages) {
-          AppState.reviewsFilter.page++;
-          renderView();
-        }
+        if (AppState.reviewsFilter.page < data.pages) { AppState.reviewsFilter.page++; renderView(); }
       });
     }
 
@@ -1087,61 +1169,50 @@
       const data = await API.get('/api/alerts');
 
       container.innerHTML = `
-        <div class="dashboard-panel">
-          <div class="panel-header">
-            <div class="panel-title">Forensic Signals &amp; Anomaly Alerts</div>
-            <span class="provenance-tag">${AppState.mode === 'real' ? 'Real Kaggle Data Mode' : 'Synthetic Trend Demo'}</span>
+        <div class="section">
+          <div class="section-head">
+            <h2 class="section-title">Alerts</h2>
+            <span class="section-meta">${AppState.mode === 'real' ? 'Real data' : 'Synthetic demo'}</span>
           </div>
 
           ${AppState.mode === 'real' ? `
-            <div class="notice-card" style="margin-bottom: 24px;">
-              <div class="notice-title">Notice: Historical Trend Detection Requires Dated Records</div>
-              <div class="notice-text">
-                The downloaded Flipkart and Amazon Kaggle review datasets do not contain timestamp or review-date fields. Under strict forensic standards, timestamps are not fabricated.
-                <br><br>
-                To evaluate the statistical two-proportion $z$-test anomaly engine ($W=7$d surge vs $B=28$d baseline), switch to the <strong>Synthetic Trend Demo</strong> mode below.
-              </div>
-              <button id="btn-switch-demo" class="btn-download" style="margin-top: 14px;">Switch to Synthetic Trend Demo</button>
-            </div>
-          ` : ''}
+            <p class="note">
+              Alerts need review dates, and the Flipkart and Amazon datasets don’t have any. Switch to the synthetic demo to see how a spike in complaints gets flagged.
+            </p>
+            <button id="btn-switch-demo" class="btn-primary" style="margin-bottom:32px;">Open the synthetic demo</button>
+          ` : `
+            <p class="note">A topic is flagged when its share of reviews in the last 7 days is well above the previous 28 days.</p>
+          `}
 
           ${data.alerts && data.alerts.length > 0 ? data.alerts.map(a => `
-            <div class="alert-item ${a.severity}">
-              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+            <div class="alert-item">
+              <div class="alert-top">
                 <div>
-                  <div class="provenance-tag" style="margin-bottom:4px;">[SYNTHETIC DEMO - NOT REAL REVIEWS]</div>
-                  <h3 style="font-size:15px; font-weight:700; color:var(--text-dark);">${escapeHtml(a.title)}</h3>
-                  <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
-                    Severity: <strong>${escapeHtml(a.severity)}</strong> &bull; Anomaly Score: <strong>${a.score}</strong> &bull; Statistical z: <strong>${a.z}</strong>
-                  </div>
+                  <span class="alert-product">${escapeHtml(a.product)}</span>
+                  <span class="alert-topic">${escapeHtml(a.topic)}</span>
                 </div>
-                <select class="form-select alert-status" data-key="${escapeHtml(a.key)}" style="width:130px;">
+                <select class="form-select alert-status" data-key="${escapeHtml(a.key)}">
                   ${['new', 'investigating', 'resolved', 'dismissed'].map(st => `
-                    <option value="${st}" ${st === a.status ? 'selected' : ''}>${st.toUpperCase()}</option>
-                  `).join('')}
+                    <option value="${st}" ${st === a.status ? 'selected' : ''}>${st.charAt(0).toUpperCase() + st.slice(1)}</option>`).join('')}
                 </select>
               </div>
 
-              <p style="margin: 10px 0; font-size:13px; color:#333;">
-                Share of <strong>${escapeHtml(a.product)}</strong> reviews with ${a.kind === 'neg' ? 'complaints' : 'praise'}: <strong>${Math.round(a.p1 * 100)}%</strong> in recent window vs <strong>${Math.round(a.p2 * 100)}%</strong> baseline ($z = ${a.z}$).
+              <p style="margin:4px 0 8px;">
+                ${a.kind === 'neg' ? 'Complaints' : 'Praise'} appear in <strong>${Math.round(a.p1 * 100)}%</strong> of recent reviews, up from <strong>${Math.round(a.p2 * 100)}%</strong> in the baseline (z = ${a.z}).
               </p>
 
               ${a.evidence.map(e => `
-                <div class="quote-box">
-                  “${escapeHtml(e.text)}”
-                  <div style="font-size:11px; color:#888; margin-top:3px;">${escapeHtml(e.platform)} &bull; ${escapeHtml(e.date)} &bull; ${e.rating || '–'} ★</div>
-                </div>
-              `).join('')}
+                <div class="quote">
+                  ${escapeHtml(e.text)}
+                  <small>${escapeHtml(e.platform)}, ${escapeHtml(e.date)}, ${e.rating ? e.rating + ' ★' : 'no rating'}</small>
+                </div>`).join('')}
 
-              <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border-light); display:flex; gap:8px;">
-                <input type="text" class="form-input action-note" placeholder="Log investigation or mitigation action" style="flex:1;">
-                <button class="btn-flat action-submit" data-key="${escapeHtml(a.key)}">Record Action</button>
+              <div class="alert-log">
+                <input type="text" class="form-input action-note" placeholder="What did you do about it?">
+                <button class="btn-dark action-submit" data-key="${escapeHtml(a.key)}">Save note</button>
               </div>
-            </div>
-          `).join('') : `
-            <div style="padding: 24px; text-align: center; color: var(--text-muted);">
-              ${AppState.mode === 'real' ? 'No alerts active. Real datasets do not contain dates.' : 'No statistical anomalies detected for current scope.'}
-            </div>
+            </div>`).join('') : `
+            <div class="empty">${AppState.mode === 'real' ? 'No alerts, because the real datasets have no dates.' : 'No alerts for the current filters.'}</div>
           `}
         </div>
       `;
@@ -1156,14 +1227,14 @@
       }
 
       container.querySelectorAll('.alert-status').forEach(sel => {
-        sel.addEventListener('change', async (e) => {
+        sel.addEventListener('change', async e => {
           await API.post('/api/alert/status', { key: e.target.dataset.key, status: e.target.value });
           renderView();
         });
       });
 
       container.querySelectorAll('.action-submit').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
+        btn.addEventListener('click', async e => {
           const card = e.target.closest('.alert-item');
           const note = card.querySelector('.action-note').value.trim() || 'Action recorded';
           await API.post('/api/alert/action', { key: btn.dataset.key, note });
@@ -1176,53 +1247,36 @@
       const data = await API.get('/api/momentum');
 
       container.innerHTML = `
-        <div class="dashboard-panel">
-          <div class="panel-header">
-            <div class="panel-title">Product Quality Momentum</div>
-            <span class="provenance-tag">${AppState.mode === 'real' ? 'Real Datasets' : 'Synthetic Demo Mode'}</span>
+        <div class="section">
+          <div class="section-head">
+            <h2 class="section-title">Momentum</h2>
+            <span class="section-meta">${AppState.mode === 'real' ? 'Real data' : 'Synthetic demo'}</span>
           </div>
 
-          ${AppState.mode === 'real' ? `
-            <div class="notice-card">
-              <div class="notice-title">Momentum Tracking Requirement: Historical Dated Windows</div>
-              <div class="notice-text">
-                Product quality momentum measures consecutive 28-day performance changes (current 28d vs prior 28d). Because the raw Kaggle datasets lack timestamps, historical momentum is paused to prevent simulated date bias. Switch to Synthetic Trend Demo to view the momentum classification algorithm in action.
-              </div>
-            </div>
-          ` : ''}
+          <p class="note">
+            ${AppState.mode === 'real'
+          ? 'Momentum compares the latest 28 days with the 28 days before. The real datasets have no timestamps, so there is nothing to compare. Switch to the synthetic demo to see how products are classified.'
+          : 'Each product is compared across two 28-day windows and labelled by how its indicators moved.'}
+          </p>
 
           ${data.map(p => `
-            <div style="margin-bottom: 24px;">
-              <h3 style="font-size:15px; font-weight:700; margin-bottom:8px;">
-                ${escapeHtml(p.product)}: <span style="color:var(--color-primary);">${escapeHtml(p.state)}</span>
-              </h3>
-
+            <div class="momentum-block">
+              <h3 class="momentum-name">${escapeHtml(p.product)}: <span class="momentum-state">${escapeHtml(p.state)}</span></h3>
               ${p.indicators && p.indicators.length > 0 ? `
                 <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>Indicator</th>
-                      <th>Current Window</th>
-                      <th>Prior Window</th>
-                      <th>Signal</th>
-                    </tr>
-                  </thead>
+                  <thead><tr><th>Indicator</th><th>Last 28 days</th><th>Prior 28 days</th><th>Change</th></tr></thead>
                   <tbody>
                     ${p.indicators.map(ind => `
                       <tr>
-                        <td><strong>${escapeHtml(ind.name)}</strong></td>
+                        <td>${escapeHtml(ind.name)}</td>
                         <td>${escapeHtml(ind.now)}</td>
                         <td>${escapeHtml(ind.before)}</td>
-                        <td>${ind.signal === 'worse' ? '▼ Worse' : ind.signal === 'better' ? '▲ Better' : '— Stable'}</td>
-                      </tr>
-                    `).join('')}
+                        <td>${ind.signal === 'worse' ? '▼ Worse' : ind.signal === 'better' ? '▲ Better' : 'Stable'}</td>
+                      </tr>`).join('')}
                   </tbody>
                 </table>
-              ` : `
-                <p style="color:var(--text-muted); font-size:13px;">Historical windows not available without timestamps.</p>
-              `}
-            </div>
-          `).join('')}
+              ` : `<p class="note">No date windows available for this product.</p>`}
+            </div>`).join('')}
         </div>
       `;
     }
@@ -1231,186 +1285,174 @@
       const report = await API.get('/api/quality_report');
 
       container.innerHTML = `
-        <div class="dashboard-panel">
-          <div class="panel-header">
-            <div class="panel-title">Data Quality &amp; Provenance Audit Report</div>
-            <span class="provenance-tag">Canonical 10-Field Schema</span>
+        <div class="section">
+          <div class="section-head">
+            <h2 class="section-title">Where the data comes from</h2>
           </div>
-          <p style="font-size:13.5px; color:var(--text-muted); margin-bottom:20px;">
-            Audited metrics from the unified ETL pipeline ([data_processor.py](file:///c:/Users/tanis/Downloads/review-forensics%20(1)/review-forensics/backend/data_processor.py)). Strict zero-fabrication standards are maintained.
+          <p class="lede">
+            Every review passes through one cleaning script (<code>backend/data_processor.py</code>). Missing dates, prices and product names stay empty. Nothing is filled in.
           </p>
 
-          <table class="data-table" style="margin-bottom: 24px;">
+          <table class="data-table" style="margin-bottom:36px;">
             <thead>
-              <tr>
-                <th>Source Dataset</th>
-                <th>Raw Rows</th>
-                <th>Retained Rows</th>
-                <th>Dropped Rows</th>
-                <th>Exact Duplicates</th>
-                <th>Unique Products</th>
-                <th>Categories</th>
-              </tr>
+              <tr><th>Dataset</th><th>Raw rows</th><th>Kept</th><th>Dropped</th><th>Duplicates</th><th>Products</th><th>Categories</th></tr>
             </thead>
             <tbody>
               ${report.map(r => `
                 <tr>
-                  <td><strong>${escapeHtml(r.source)}</strong></td>
+                  <td>${escapeHtml(r.source)}</td>
                   <td>${r.total_rows.toLocaleString()}</td>
-                  <td style="color:#27ae60; font-weight:600;">${r.valid_rows.toLocaleString()}</td>
-                  <td style="color:${r.dropped_rows > 0 ? '#d94a4a' : 'inherit'}; font-weight:600;">${r.dropped_rows}</td>
+                  <td style="color:var(--pos);">${r.valid_rows.toLocaleString()}</td>
+                  <td style="color:${r.dropped_rows > 0 ? 'var(--neg)' : 'inherit'};">${r.dropped_rows}</td>
                   <td>${r.duplicate_rows.toLocaleString()}</td>
                   <td>${r.unique_products.toLocaleString()}</td>
                   <td>${r.categories_count}</td>
-                </tr>
-              `).join('')}
+                </tr>`).join('')}
             </tbody>
           </table>
 
-          <div class="notice-card">
-            <div class="notice-title">Data Cleaning &amp; Safe Normalization Log</div>
-            <div class="notice-text">
-              &bull; <strong>Flipkart Malformed Rows:</strong> 3 shifted rows where product title repeated across price and rating were safely dropped.<br>
-              &bull; <strong>Flipkart Missing Reviews:</strong> 2 rows with empty review text dropped. 24,664 rows had missing headlines but valid body text (retained).<br>
-              &bull; <strong>Amazon Polarity:</strong> 3.6 million rows streamed in memory-safe chunks. Polarity classes 1 and 2 mapped directly to negative and positive.<br>
-              &bull; <strong>Zero Fabrication:</strong> Missing dates, prices, and product names are recorded as null without synthetic hallucination.
-            </div>
-          </div>
+          <h3 class="momentum-name">Cleaning rules</h3>
+          <p class="lede" style="margin-bottom:10px;"><strong style="color:var(--text-dark);">Flipkart, shifted rows.</strong> Rows where the product title was repeated in the price and rating columns were dropped.</p>
+          <p class="lede" style="margin-bottom:10px;"><strong style="color:var(--text-dark);">Flipkart, empty reviews.</strong> Rows with no review text were dropped. Rows with a body but no headline were kept.</p>
+          <p class="lede" style="margin-bottom:0;"><strong style="color:var(--text-dark);">Amazon.</strong> Read in chunks to save memory. Polarity 1 is negative and 2 is positive.</p>
         </div>
       `;
     }
 
     function renderSettings(container, summary) {
       const amd = summary.amd_status || {};
+      const tfStatus = amd.token_factory_active
+        ? 'Connected (' + escapeHtml(amd.token_factory_model) + ')'
+        : (amd.circuit_paused ? 'Paused, retrying after a cooldown' : 'Not configured, using CPU fallback');
+
       container.innerHTML = `
-        <div class="dashboard-panel">
-          <div class="panel-header">
-            <div class="panel-title">AMD GPU AI Inference Service Architecture</div>
-            <span class="provenance-tag">AMD ACT III Reinvent Commerce</span>
-          </div>
-          <table class="data-table" style="margin-bottom: 20px;">
+        <div class="section">
+          <div class="section-head"><h2 class="section-title">AMD inference</h2></div>
+          <p class="lede">Basic statistics always run on the host CPU. Only the sentiment and complaint classification uses an AMD GPU, and this page says plainly when it isn’t.</p>
+          <table class="data-table">
             <tbody>
-              <tr>
-                <td style="width:240px;"><strong>Hardware Target</strong></td>
-                <td>${escapeHtml(amd.hardware_target || 'AMD Instinct MI300 / Radeon RX 7000 Series (ROCm 6.x)')}</td>
-              </tr>
-              <tr>
-                <td><strong>Active Runtime Engine</strong></td>
-                <td>${escapeHtml(amd.engine_type || 'Host CPU (Statistical & Rule-based Engine)')}</td>
-              </tr>
-              <tr>
-                <td><strong>ROCm GPU Active (Local)</strong></td>
-                <td><span style="color:${amd.rocm_active ? '#27ae60' : '#888'}; font-weight:600;">${amd.rocm_active ? 'YES (ROCm Accelerated)' : 'Ready for ROCm Deployment (Host CPU Mode)'}</span></td>
-              </tr>
-              <tr>
-                <td><strong>AMD Token Factory Cloud</strong></td>
-                <td><span style="color:${amd.token_factory_active ? '#27ae60' : '#888'}; font-weight:600;">${amd.token_factory_active ? 'CONNECTED (' + escapeHtml(amd.token_factory_model) + ')' : (amd.circuit_paused ? 'CIRCUIT BREAKER PAUSED (Cooldown Active)' : 'Not Configured (CPU Fallback Active)')}</span></td>
-              </tr>
-              <tr>
-                <td><strong>Inference Schema</strong></td>
-                <td><code>sentiment, confidence, complaint_category, product_issue, recommended_action</code></td>
-              </tr>
-              <tr>
-                <td><strong>Batch Capacity</strong></td>
-                <td>512 reviews per batch</td>
-              </tr>
-              <tr>
-                <td><strong>Decoupling Principle</strong></td>
-                <td>AI inference is strictly decoupled from basic statistical metrics. No false GPU claims are made on host CPU.</td>
-              </tr>
+              <tr><td class="dim" style="width:240px;">Hardware target</td><td>${escapeHtml(amd.hardware_target || 'AMD Instinct MI300 or Radeon RX 7000 series (ROCm 6.x)')}</td></tr>
+              <tr><td class="dim">Running on</td><td>${escapeHtml(amd.engine_type || 'Host CPU, rule-based')}</td></tr>
+              <tr><td class="dim">Local ROCm GPU</td><td style="color:${amd.rocm_active ? 'var(--pos)' : 'var(--text-muted)'};">${amd.rocm_active ? 'Active' : 'Not active, running on CPU'}</td></tr>
+              <tr><td class="dim">AMD Token Factory</td><td style="color:${amd.token_factory_active ? 'var(--pos)' : 'var(--text-muted)'};">${tfStatus}</td></tr>
+              <tr><td class="dim">Output fields</td><td><code>sentiment, confidence, complaint_category, product_issue, recommended_action</code></td></tr>
+              <tr><td class="dim">Batch size</td><td>512 reviews</td></tr>
             </tbody>
           </table>
         </div>
 
-        <div class="dashboard-panel">
-          <div class="panel-header">
-            <div class="panel-title">Interactive AMD AI Inference Test</div>
-            <span class="provenance-tag">Live GPU Diagnostics</span>
-          </div>
-          <p style="margin-bottom:14px; color:#555; font-size:13px;">
-            Test the live AMD inference pipeline on any customer feedback text. It queries <strong>DeepSeek-V4-Flash</strong> on AMD Token Factory Cloud when configured, or instantly runs the explainable CPU rule engine.
-          </p>
-          <div style="display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
-            <input type="text" id="infer-input" class="form-input" placeholder="Type or paste a customer review (e.g., 'The air cooler is chilling and quiet, but the packaging was damaged.')..." style="flex:1; min-width:280px;" value="The air cooler is chilling and quiet, but the packaging was damaged.">
-            <select id="infer-rating" class="form-select" style="width:140px;">
-              <option value="4">Rating: 4 ★</option>
-              <option value="5">Rating: 5 ★</option>
-              <option value="3">Rating: 3 ★</option>
-              <option value="2">Rating: 2 ★</option>
-              <option value="1">Rating: 1 ★</option>
+        <div class="section">
+          <div class="section-head"><h2 class="section-title">Try it on a review</h2></div>
+          <p class="lede">Uses DeepSeek-V4-Flash on AMD Token Factory when it’s configured. Otherwise the CPU rules classify it.</p>
+          <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center;">
+            <input type="text" id="infer-input" class="form-input" placeholder="Paste a customer review" style="flex:1; min-width:280px;" value="The air cooler is chilling and quiet, but the packaging was damaged in delivery.">
+            <select id="infer-rating" class="form-select">
+              <option value="4">4 stars</option>
+              <option value="5">5 stars</option>
+              <option value="3">3 stars</option>
+              <option value="2">2 stars</option>
+              <option value="1">1 star</option>
             </select>
-            <button id="btn-run-infer" class="btn-download" style="padding:8px 18px;">RUN INFERENCE</button>
+            <button id="btn-run-infer" class="btn-primary">Classify</button>
           </div>
-          <div id="infer-result" style="display:none; padding:14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; margin-top:10px;"></div>
+          <div id="infer-result" class="infer-result"></div>
         </div>
 
-        <div class="dashboard-panel">
-          <div class="panel-header">
-            <div class="panel-title">System &amp; Storage Configuration</div>
-          </div>
+        <div class="section">
+          <div class="section-head"><h2 class="section-title">Storage</h2></div>
           <table class="data-table">
             <tbody>
-              <tr>
-                <td style="width:240px;"><strong>Database Storage</strong></td>
-                <td>Local SQLite (<code>backend/data/rf.db</code>) with B-Tree indexes on <code>(source, category, product, sentiment, rating)</code></td>
-              </tr>
-              <tr>
-                <td><strong>Active Real Records</strong></td>
-                <td>205,047 Flipkart reviews + 50,000 Amazon sample reviews active in SQLite</td>
-              </tr>
-              <tr>
-                <td><strong>Bulk Storage Files</strong></td>
-                <td><code>data/processed/flipkart_cleaned.csv</code> (205k), <code>data/processed/amazon_cleaned.csv</code> (3.6M)</td>
-              </tr>
+              <tr><td class="dim" style="width:240px;">Database</td><td>SQLite at <code>backend/data/rf.db</code>, indexed on source, category, product, sentiment and rating</td></tr>
+              <tr><td class="dim">Loaded reviews</td><td>205,047 from Flipkart and a 50,000 sample from Amazon</td></tr>
+              <tr><td class="dim">Cleaned files</td><td><code>data/processed/flipkart_cleaned.csv</code> (205k rows), <code>data/processed/amazon_cleaned.csv</code> (3.6M rows)</td></tr>
             </tbody>
           </table>
         </div>
       `;
+
+      const btn = container.querySelector('#btn-run-infer');
+      if (btn) {
+        btn.addEventListener('click', async () => {
+          const txt = container.querySelector('#infer-input').value.trim();
+          const rating = container.querySelector('#infer-rating').value;
+          const resBox = container.querySelector('#infer-result');
+          if (!txt) return;
+          btn.disabled = true;
+          btn.textContent = 'Classifying…';
+          resBox.style.display = 'block';
+          resBox.innerHTML = '<span style="color:var(--text-muted);">Working…</span>';
+          try {
+            const out = await API.post('/api/amd_infer', { text: txt, rating: parseFloat(rating) });
+            resBox.innerHTML = `
+              <div class="infer-grid">
+                <div><span class="k">Sentiment</span><span class="sentiment ${escapeHtml(out.sentiment)}">${escapeHtml(out.sentiment)}</span></div>
+                <div><span class="k">Confidence</span>${(out.confidence * 100).toFixed(0)}%</div>
+                <div><span class="k">Complaint category</span><code>${escapeHtml(out.complaint_category || 'none')}</code></div>
+                <div><span class="k">Engine</span>${escapeHtml(out.processing_engine)}</div>
+              </div>
+              <p><strong style="color:var(--text-dark);">Issue:</strong> ${escapeHtml(out.product_issue || 'None found')}</p>
+              <p><strong style="color:var(--text-dark);">Suggested action:</strong> ${escapeHtml(out.recommended_action || 'None needed')}</p>
+            `;
+          } catch (e) {
+            resBox.innerHTML = `<span style="color:var(--neg);">The request failed: ${escapeHtml(e.message)}. Check that the backend is running.</span>`;
+          } finally {
+            btn.disabled = false;
+            btn.textContent = 'Classify';
+          }
+        });
+      }
     }
 
-    function init() {
+    function updateHeaderStats(s) {
+      const el = document.getElementById('conn-amd-status');
+      if (!el) return;
+      const amd = s.amd_status || {};
+      if (amd.token_factory_active) {
+        el.textContent = 'Connected';
+        el.classList.remove('off');
+      } else {
+        el.textContent = amd.circuit_paused ? 'Paused' : 'Not connected, using CPU';
+        el.classList.add('off');
+      }
+    }
+
+    async function init() {
       document.querySelectorAll('.site-nav .nav-link').forEach(link => {
         link.addEventListener('click', () => switchView(link.dataset.view));
       });
 
-      document.getElementById('filter-mode').addEventListener('change', (e) => {
+      document.getElementById('filter-mode').addEventListener('change', e => {
         AppState.mode = e.target.value;
-        AppState.platform = '';
-        AppState.category = '';
-        AppState.product = '';
-        AppState.reviewsFilter.page = 1;
         renderView();
       });
 
-      document.getElementById('filter-platform').addEventListener('change', (e) => {
-        AppState.platform = e.target.value;
-        AppState.reviewsFilter.page = 1;
-        renderView();
-      });
+      const platSelect = document.getElementById('filter-platform');
+      const catSelect = document.getElementById('filter-category');
+      const prodSelect = document.getElementById('filter-product');
 
-      document.getElementById('filter-category').addEventListener('change', (e) => {
-        AppState.category = e.target.value;
-        AppState.reviewsFilter.page = 1;
-        renderView();
-      });
-
-      document.getElementById('filter-product').addEventListener('change', (e) => {
-        AppState.product = e.target.value;
-        AppState.reviewsFilter.page = 1;
-        renderView();
-      });
+      platSelect.addEventListener('change', e => { AppState.platform = e.target.value; AppState.reviewsFilter.page = 1; renderView(); });
+      catSelect.addEventListener('change', e => { AppState.category = e.target.value; AppState.reviewsFilter.page = 1; renderView(); });
+      prodSelect.addEventListener('change', e => { AppState.product = e.target.value; AppState.reviewsFilter.page = 1; renderView(); });
 
       document.getElementById('btn-reset-filters').addEventListener('click', () => {
         AppState.platform = '';
         AppState.category = '';
         AppState.product = '';
-        AppState.reviewsFilter.q = '';
-        AppState.reviewsFilter.sentiment = '';
-        AppState.reviewsFilter.rating = '';
-        AppState.reviewsFilter.sort = '';
-        AppState.reviewsFilter.page = 1;
+        AppState.reviewsFilter = { page: 1, q: '', sentiment: '', rating: '', sort: '' };
+        platSelect.value = '';
+        catSelect.value = '';
+        prodSelect.value = '';
         renderView();
       });
+
+      try {
+        const s = await API.get('/api/summary');
+        (s.all_platforms || []).forEach(p => platSelect.add(new Option(p, p)));
+        (s.all_categories || []).forEach(c => catSelect.add(new Option(c, c)));
+        (s.products || []).slice(0, 50).forEach(pr => prodSelect.add(new Option(pr, pr)));
+      } catch (e) {
+        console.warn('Could not load filter options:', e);
+      }
 
       renderView();
     }
