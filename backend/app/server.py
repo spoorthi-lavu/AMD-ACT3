@@ -510,78 +510,91 @@ BENCH_NOTE = "Locally generated synthetic benchmark data (template-based). Not r
 BENCH_NO_TIME = "Benchmark records have no timestamps, so alerts and momentum analysis are unavailable."
 
 
+def _bench_where(q):
+    where, params = ["1=1"], []
+    plat = q.get("platform") or q.get("source") or ""
+    for col, val in (("platform", plat), ("category", q.get("category") or ""),
+                     ("product_name", q.get("product") or ""), ("sentiment", q.get("sentiment") or "")):
+        if val:
+            where.append(col + " = ?"); params.append(val)
+    try:
+        rv = int(q.get("rating") or 0)
+    except ValueError:
+        rv = 0
+    if rv:
+        where.append("CAST(ROUND(rating) AS INT) = ?"); params.append(rv)
+    txt = (q.get("q") or "").strip()
+    if txt:
+        where.append("review_text LIKE ?"); params.append("%" + txt + "%")
+    return " AND ".join(where), params
+
+
 def benchmark_summary(q):
+    T = "synthetic_benchmark_reviews"
+    w, params = _bench_where(q)
     c = conn()
-    tot = c.execute("SELECT COUNT(*) n, ROUND(AVG(rating),2) a, COUNT(rating) rc FROM synthetic_benchmark_reviews").fetchone()
+    st = c.execute(f"SELECT COUNT(*) n, ROUND(AVG(rating),2) a, COUNT(rating) rc, ROUND(AVG(price),2) ap, ROUND(MIN(price),2) mn, ROUND(MAX(price),2) mx FROM {T} WHERE {w}", params).fetchone()
     ratings = {str(i): 0 for i in range(1, 6)}
-    for r in c.execute("SELECT CAST(ROUND(rating) AS INT) star, COUNT(*) n FROM synthetic_benchmark_reviews WHERE rating IS NOT NULL GROUP BY star"):
+    for r in c.execute(f"SELECT CAST(ROUND(rating) AS INT) star, COUNT(*) n FROM {T} WHERE {w} AND rating IS NOT NULL GROUP BY star", params):
         if r["star"] and 1 <= r["star"] <= 5:
             ratings[str(r["star"])] = r["n"]
     sentiment = {"positive": 0, "neutral": 0, "negative": 0}
-    for r in c.execute("SELECT sentiment, COUNT(*) n FROM synthetic_benchmark_reviews GROUP BY sentiment"):
+    for r in c.execute(f"SELECT sentiment, COUNT(*) n FROM {T} WHERE {w} GROUP BY sentiment", params):
         if r["sentiment"] in sentiment:
             sentiment[r["sentiment"]] = r["n"]
-    topics, cats = {}, {}
-    for r in c.execute("SELECT topic, sentiment, COUNT(*) n, ROUND(AVG(rating),2) a FROM synthetic_benchmark_reviews GROUP BY topic, sentiment"):
-        t = r["topic"] or "unspecified"
-        e = topics.setdefault(t, {"pos": 0, "neg": 0})
+    topics = {}
+    for r in c.execute(f"SELECT topic, sentiment, COUNT(*) n FROM {T} WHERE {w} GROUP BY topic, sentiment", params):
+        e = topics.setdefault(r["topic"] or "unspecified", {"pos": 0, "neg": 0})
         if r["sentiment"] == "positive":
             e["pos"] += r["n"]
         elif r["sentiment"] == "negative":
             e["neg"] += r["n"]
-        k = cats.setdefault(t, {"category": t, "count": 0, "sum": 0.0})
-        k["count"] += r["n"]
-        k["sum"] += (r["a"] or 0) * r["n"]
-    categories = sorted(
-        [{"category": k["category"], "count": k["count"], "avg_rating": round(k["sum"] / k["count"], 2) if k["count"] else None, "avg_price": None} for k in cats.values()],
-        key=lambda x: -x["count"])
-    edge = c.execute("SELECT SUM(sarcasm) sarcasm, SUM(negation) negation, SUM(rating_text_mismatch) rating_text_mismatch, SUM(prompt_injection) prompt_injection FROM synthetic_benchmark_reviews").fetchone()
-    platforms = [{"platform": r["source"], "n": r["n"], "avg": r["a"], "avg_price": None}
-                 for r in c.execute("SELECT source, COUNT(*) n, ROUND(AVG(rating),2) a FROM synthetic_benchmark_reviews GROUP BY source")]
+    categories = [{"category": r["category"], "count": r["n"], "avg_rating": r["a"], "avg_price": r["ap"]}
+                  for r in c.execute(f"SELECT category, COUNT(*) n, ROUND(AVG(rating),2) a, ROUND(AVG(price),2) ap FROM {T} WHERE {w} AND category IS NOT NULL GROUP BY category ORDER BY n DESC", params)]
+    platforms = [{"platform": r["platform"], "n": r["n"], "avg": r["a"], "avg_price": r["ap"]}
+                 for r in c.execute(f"SELECT platform, COUNT(*) n, ROUND(AVG(rating),2) a, ROUND(AVG(price),2) ap FROM {T} WHERE {w} GROUP BY platform ORDER BY n DESC", params)]
+    edge = c.execute(f"SELECT SUM(sarcasm) sarcasm, SUM(negation) negation, SUM(rating_text_mismatch) rating_text_mismatch, SUM(prompt_injection) prompt_injection FROM {T} WHERE {w}", params).fetchone()
+    scenarios = {r["scenario_type"]: r["n"] for r in c.execute(f"SELECT scenario_type, COUNT(*) n FROM {T} WHERE {w} GROUP BY scenario_type", params)}
+    products = [r[0] for r in c.execute(f"SELECT DISTINCT product_name FROM {T} WHERE product_name IS NOT NULL ORDER BY product_name")]
+    all_categories = [r[0] for r in c.execute(f"SELECT DISTINCT category FROM {T} WHERE category IS NOT NULL ORDER BY category")]
+    all_platforms = [r[0] for r in c.execute(f"SELECT DISTINCT platform FROM {T} WHERE platform IS NOT NULL ORDER BY platform")]
     c.close()
     return {
-        "mode": "benchmark", "total": tot["n"], "avg": tot["a"], "rated_count": tot["rc"],
-        "price_stats": {"avg": None, "min": None, "max": None},
+        "mode": "benchmark", "total": st["n"], "avg": st["a"], "rated_count": st["rc"],
+        "price_stats": {"avg": st["ap"], "min": st["mn"], "max": st["mx"]},
         "ratings": ratings, "sentiment": sentiment, "platforms": platforms,
         "categories": categories, "topics": topics, "active_alerts": 0,
         "notes": [BENCH_NOTE, BENCH_NO_TIME], "data_note": BENCH_NOTE,
-        "edge_cases": {k: (edge[k] or 0) for k in edge.keys()},
-        "products": [], "all_categories": [], "all_platforms": [],
+        "edge_cases": {k: (edge[k] or 0) for k in edge.keys()}, "scenarios": scenarios,
+        "products": products, "all_categories": all_categories, "all_platforms": all_platforms,
         "data_quality": [], "amd_status": amd_engine.status(),
     }
 
 
 def benchmark_reviews(q):
-    where, params = ["1=1"], []
-    if q.get("sentiment"):
-        where.append("sentiment = ?"); params.append(q["sentiment"])
-    if q.get("rating"):
-        where.append("CAST(ROUND(rating) AS INT) = ?"); params.append(int(q["rating"]))
-    txt = (q.get("q") or "").strip()
-    if txt:
-        where.append("review_text LIKE ?"); params.append(f"%{txt}%")
-    w = " AND ".join(where)
+    T = "synthetic_benchmark_reviews"
+    w, params = _bench_where(q)
     c = conn()
-    total = c.execute(f"SELECT COUNT(*) FROM synthetic_benchmark_reviews WHERE {w}", params).fetchone()[0]
+    total = c.execute(f"SELECT COUNT(*) FROM {T} WHERE {w}", params).fetchone()[0]
     try:
         page = max(1, int(q.get("page", 1)))
     except ValueError:
         page = 1
     size = 15
-    order = "rating DESC, id DESC" if q.get("sort") == "rating" else "id DESC"
+    sk = q.get("sort")
+    order = "rating DESC, id DESC" if sk == "rating" else "price DESC, id DESC" if sk == "price" else "id DESC"
     rows = []
-    for r in c.execute(f"SELECT * FROM synthetic_benchmark_reviews WHERE {w} ORDER BY {order} LIMIT ? OFFSET ?", params + [size, (page - 1) * size]):
+    for r in c.execute(f"SELECT * FROM {T} WHERE {w} ORDER BY {order} LIMIT ? OFFSET ?", params + [size, (page - 1) * size]):
         flags = [n for n in ("sarcasm", "negation", "rating_text_mismatch", "prompt_injection") if r[n]]
-        topic = r["topic"]
         rows.append({
-            "id": r["id"], "product": "Synthetic benchmark review", "product_name": None,
-            "category": topic, "price": None, "rating": r["rating"],
+            "id": r["id"], "product_id": r["product_id"], "product": r["product_name"], "product_name": r["product_name"],
+            "platform": r["platform"], "source": (r["platform"] or "") + " (simulated)",
+            "category": r["category"], "topic": r["topic"], "price": r["price"], "rating": r["rating"],
             "review_summary": None, "sentiment": r["sentiment"],
-            "source": r["source"], "platform": r["source"],
-            "text": r["review_text"], "review_text": r["review_text"],
-            "date": "No date (synthetic benchmark)", "review_date": None,
-            "topics": [{"topic": topic}] if topic else [],
-            "flags": flags, "language": r["language"], "is_synthetic": 1,
+            "review_text": r["review_text"], "text": r["review_text"],
+            "review_date": r["review_date"], "date": (r["review_date"] or "") + " (simulated)",
+            "scenario_type": r["scenario_type"], "flags": flags, "language": r["language"],
+            "topics": [{"topic": r["topic"]}] if r["topic"] else [], "is_synthetic": 1,
         })
     c.close()
     return {"total": total, "page": page, "pages": max(1, -(-total // size)), "rows": rows, "data_note": BENCH_NOTE}
