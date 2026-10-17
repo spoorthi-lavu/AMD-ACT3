@@ -1170,14 +1170,14 @@
     function benchmarkNA(title) { return `<div class="section"><div class="section-head"><h2 class="section-title">${title}</h2><span class="section-meta">Synthetic benchmark</span></div><p class="note">Benchmark records have no timestamps, so this analysis is unavailable. Switch to the synthetic trend demo to see it.</p></div>`; }
 
     async function renderAlerts(container) {
-      if (AppState.mode === 'benchmark') { container.innerHTML = benchmarkNA('Alerts'); return; }
+      
       const data = await API.get('/api/alerts');
 
       container.innerHTML = `
         <div class="section">
           <div class="section-head">
             <h2 class="section-title">Alerts</h2>
-            <span class="section-meta">${AppState.mode === 'real' ? 'Real data' : 'Synthetic demo'}</span>
+            <span class="section-meta">${AppState.mode === 'real' ? 'Real data' : AppState.mode === 'benchmark' ? 'Synthetic benchmark (simulated dates)' : 'Synthetic demo'}</span>
           </div>
 
           ${AppState.mode === 'real' ? `
@@ -1186,7 +1186,7 @@
             </p>
             <button id="btn-switch-demo" class="btn-primary" style="margin-bottom:32px;">Open the synthetic demo</button>
           ` : `
-            <p class="note">A topic is flagged when its share of reviews in the last 7 days is well above the previous 28 days.</p>
+            <p class="note">A topic is flagged when its share of reviews in the last 7 days is well above the previous 28 days.${AppState.mode === 'benchmark' ? ' In this benchmark the dates are simulated and one spike was planted on purpose to test the detector. It is not a real trend.' : ''}</p>
           `}
 
           ${data.alerts && data.alerts.length > 0 ? data.alerts.map(a => `
@@ -1249,14 +1249,14 @@
     }
 
     async function renderMomentum(container) {
-      if (AppState.mode === 'benchmark') { container.innerHTML = benchmarkNA('Momentum'); return; }
+      
       const data = await API.get('/api/momentum');
 
       container.innerHTML = `
         <div class="section">
           <div class="section-head">
             <h2 class="section-title">Momentum</h2>
-            <span class="section-meta">${AppState.mode === 'real' ? 'Real data' : 'Synthetic demo'}</span>
+            <span class="section-meta">${AppState.mode === 'real' ? 'Real data' : AppState.mode === 'benchmark' ? 'Synthetic benchmark (simulated dates)' : 'Synthetic demo'}</span>
           </div>
 
           <p class="note">

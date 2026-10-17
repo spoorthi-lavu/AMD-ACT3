@@ -507,7 +507,7 @@ def _orig_momentum_view(q):
 
 
 BENCH_NOTE = "Locally generated synthetic benchmark data (template-based). Not real customer reviews; labels are not independently verified."
-BENCH_NO_TIME = "Benchmark records have no timestamps, so alerts and momentum analysis are unavailable."
+BENCH_NO_TIME = "Review dates are simulated and the alert pattern was planted to test the detector. These are not real trends."
 
 
 def _bench_where(q):
@@ -600,13 +600,34 @@ def benchmark_reviews(q):
     return {"total": total, "page": page, "pages": max(1, -(-total // size)), "rows": rows, "data_note": BENCH_NOTE}
 
 
+def _bench_detector_rows():
+    shift = today() - dt.date(2026, 10, 17)
+    c = conn()
+    out = []
+    for r in c.execute("SELECT * FROM synthetic_benchmark_reviews WHERE review_date IS NOT NULL"):
+        d = dict(r)
+        d["date"] = dt.date.fromisoformat(d["review_date"]) + shift
+        d["review_date"] = d["date"].isoformat()
+        sent = {"positive": "pos", "negative": "neg"}.get(d["sentiment"])
+        d["topics"] = [{"topic": d["topic"], "sent": sent}] if (d["topic"] and sent) else []
+        d["product"] = d["product_name"]
+        d["text"] = d["review_text"]
+        d["platform"] = d["platform"]
+        d["source"] = d["platform"]
+        d["mismatch"] = d["rating_text_mismatch"]
+        d["conf"] = 0.8
+        out.append(d)
+    c.close()
+    return out
+
+
 def benchmark_alerts_with_state(q):
-    return [], [BENCH_NO_TIME]
+    al, notes = A.detect(_bench_detector_rows(), today())
+    return al, notes + [BENCH_NO_TIME]
 
 
 def benchmark_momentum_view(q):
-    return [{"product": "Synthetic benchmark", "state": "Unavailable: no timestamps",
-             "indicators": [], "n": [0, 0]}]
+    return A.momentum(_bench_detector_rows(), today())
 
 
 class H(BaseHTTPRequestHandler):
