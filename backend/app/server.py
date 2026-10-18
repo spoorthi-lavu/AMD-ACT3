@@ -275,12 +275,20 @@ def _orig_summary(q):
         except Exception:
             pass
 
-    # 7. Available filter options
+    # 7. Available filter options (filter products by platform & category, keeping product filter out)
+    prod_where = ["is_synthetic = ?", "product_name IS NOT NULL"]
+    prod_params = [is_synth]
+    if platform:
+        prod_where.append("source = ?")
+        prod_params.append(platform)
+    if category:
+        prod_where.append("category = ?")
+        prod_params.append(category)
     products = [
         r["product_name"]
         for r in c.execute(
-            f"SELECT DISTINCT product_name FROM reviews WHERE is_synthetic = ? AND product_name IS NOT NULL ORDER BY product_name LIMIT 300",
-            (is_synth,),
+            f"SELECT DISTINCT product_name FROM reviews WHERE {' AND '.join(prod_where)} ORDER BY product_name LIMIT 300",
+            prod_params,
         )
     ]
     all_categories = [
@@ -453,8 +461,24 @@ def _orig_alerts_with_state(q):
     mode = q.get("mode", "real")
     if mode == "demo":
         c = conn()
+        where = ["is_synthetic = 1"]
+        params = []
+        plat = q.get("platform") or q.get("source") or ""
+        if plat:
+            where.append("source = ?")
+            params.append(plat)
+        cat = q.get("category") or ""
+        if cat:
+            where.append("category = ?")
+            params.append(cat)
+        prod = q.get("product") or ""
+        if prod:
+            where.append("product_name = ?")
+            params.append(prod)
+        where_sql = " AND ".join(where)
+
         synth_rows = []
-        for r in c.execute("SELECT * FROM reviews WHERE is_synthetic = 1"):
+        for r in c.execute(f"SELECT * FROM reviews WHERE {where_sql}", params):
             d = dict(r)
             d["date"] = dt.date.fromisoformat(d["review_date"]) if d["review_date"] else None
             d["topics"] = json.loads(d["topics"] or "[]")
@@ -463,6 +487,8 @@ def _orig_alerts_with_state(q):
             d["platform"] = d["source"]
             synth_rows.append(d)
         c.close()
+        if not synth_rows:
+            return [], []
         al, notes = A.detect(synth_rows, today())
         return al, notes
 
@@ -484,8 +510,24 @@ def _orig_momentum_view(q):
     mode = q.get("mode", "real")
     if mode == "demo":
         c = conn()
+        where = ["is_synthetic = 1"]
+        params = []
+        plat = q.get("platform") or q.get("source") or ""
+        if plat:
+            where.append("source = ?")
+            params.append(plat)
+        cat = q.get("category") or ""
+        if cat:
+            where.append("category = ?")
+            params.append(cat)
+        prod = q.get("product") or ""
+        if prod:
+            where.append("product_name = ?")
+            params.append(prod)
+        where_sql = " AND ".join(where)
+
         synth_rows = []
-        for r in c.execute("SELECT * FROM reviews WHERE is_synthetic = 1"):
+        for r in c.execute(f"SELECT * FROM reviews WHERE {where_sql}", params):
             d = dict(r)
             d["date"] = dt.date.fromisoformat(d["review_date"]) if d["review_date"] else None
             d["topics"] = json.loads(d["topics"] or "[]")
@@ -494,15 +536,31 @@ def _orig_momentum_view(q):
             d["platform"] = d["source"]
             synth_rows.append(d)
         c.close()
+        if not synth_rows:
+            return []
         return A.momentum(synth_rows, today())
 
     return [{
         "product": "Marketplace Catalog",
         "state": "Requires Dated Records",
+        "has_enough_data": False,
         "indicators": [
             {"name": "Date Availability", "now": "Not Present in Kaggle CSVs", "before": "Historical Window Needed", "signal": "info"}
         ],
         "n": [0, 0],
+        "avg_rating": None,
+        "avg_rating_prior": None,
+        "negative_share": None,
+        "negative_share_prior": None,
+        "neg_share_delta": 0,
+        "neg_trend": "stable",
+        "neg_trend_label": "Stable",
+        "neg_trend_icon": "―",
+        "top_complaint_topic": "None",
+        "top_complaint_count": 0,
+        "early_warning": None,
+        "weekly_series": [],
+        "complaint_topics": []
     }]
 
 
@@ -555,7 +613,17 @@ def benchmark_summary(q):
                  for r in c.execute(f"SELECT platform, COUNT(*) n, ROUND(AVG(rating),2) a, ROUND(AVG(price),2) ap FROM {T} WHERE {w} GROUP BY platform ORDER BY n DESC", params)]
     edge = c.execute(f"SELECT SUM(sarcasm) sarcasm, SUM(negation) negation, SUM(rating_text_mismatch) rating_text_mismatch, SUM(prompt_injection) prompt_injection FROM {T} WHERE {w}", params).fetchone()
     scenarios = {r["scenario_type"]: r["n"] for r in c.execute(f"SELECT scenario_type, COUNT(*) n FROM {T} WHERE {w} GROUP BY scenario_type", params)}
-    products = [r[0] for r in c.execute(f"SELECT DISTINCT product_name FROM {T} WHERE product_name IS NOT NULL ORDER BY product_name")]
+    prod_where = ["product_name IS NOT NULL"]
+    prod_params = []
+    plat = q.get("platform") or q.get("source") or ""
+    if plat:
+        prod_where.append("platform = ?")
+        prod_params.append(plat)
+    cat = q.get("category") or ""
+    if cat:
+        prod_where.append("category = ?")
+        prod_params.append(cat)
+    products = [r[0] for r in c.execute(f"SELECT DISTINCT product_name FROM {T} WHERE {' AND '.join(prod_where)} ORDER BY product_name", prod_params)]
     all_categories = [r[0] for r in c.execute(f"SELECT DISTINCT category FROM {T} WHERE category IS NOT NULL ORDER BY category")]
     all_platforms = [r[0] for r in c.execute(f"SELECT DISTINCT platform FROM {T} WHERE platform IS NOT NULL ORDER BY platform")]
     c.close()
@@ -600,11 +668,28 @@ def benchmark_reviews(q):
     return {"total": total, "page": page, "pages": max(1, -(-total // size)), "rows": rows, "data_note": BENCH_NOTE}
 
 
-def _bench_detector_rows():
+def _bench_detector_rows(q=None):
+    q = q or {}
     shift = today() - dt.date(2026, 10, 17)
     c = conn()
+    where = ["review_date IS NOT NULL"]
+    params = []
+    plat = q.get("platform") or q.get("source") or ""
+    if plat:
+        where.append("platform = ?")
+        params.append(plat)
+    cat = q.get("category") or ""
+    if cat:
+        where.append("category = ?")
+        params.append(cat)
+    prod = q.get("product") or ""
+    if prod:
+        where.append("product_name = ?")
+        params.append(prod)
+    where_sql = " AND ".join(where)
+
     out = []
-    for r in c.execute("SELECT * FROM synthetic_benchmark_reviews WHERE review_date IS NOT NULL"):
+    for r in c.execute(f"SELECT * FROM synthetic_benchmark_reviews WHERE {where_sql}", params):
         d = dict(r)
         d["date"] = dt.date.fromisoformat(d["review_date"]) + shift
         d["review_date"] = d["date"].isoformat()
@@ -622,12 +707,18 @@ def _bench_detector_rows():
 
 
 def benchmark_alerts_with_state(q):
-    al, notes = A.detect(_bench_detector_rows(), today())
+    rows = _bench_detector_rows(q)
+    if not rows:
+        return [], [BENCH_NO_TIME]
+    al, notes = A.detect(rows, today())
     return al, notes + [BENCH_NO_TIME]
 
 
 def benchmark_momentum_view(q):
-    return A.momentum(_bench_detector_rows(), today())
+    rows = _bench_detector_rows(q)
+    if not rows:
+        return []
+    return A.momentum(rows, today())
 
 
 class H(BaseHTTPRequestHandler):
@@ -678,6 +769,25 @@ class H(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header("Content-Type", "text/csv")
                 self.send_header("Content-Disposition", "attachment; filename=template.csv")
+                self.send_header("Content-Length", str(len(b)))
+                self.end_headers()
+                return self.wfile.write(b)
+
+            if u.path in ("/sources", "/quality"):
+                self.send_response(302)
+                self.send_header("Location", "/under-the-hood#data")
+                self.end_headers()
+                return
+            if u.path in ("/amd", "/settings", "/inference"):
+                self.send_response(302)
+                self.send_header("Location", "/under-the-hood#amd")
+                self.end_headers()
+                return
+            if u.path in ("/under-the-hood", "/overview", "/reviews", "/alerts", "/momentum"):
+                p = os.path.join(WEB, "index.html")
+                b = open(p, "rb").read()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
                 self.send_header("Content-Length", str(len(b)))
                 self.end_headers()
                 return self.wfile.write(b)

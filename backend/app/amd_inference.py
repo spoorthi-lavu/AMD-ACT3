@@ -132,7 +132,10 @@ class AMDInferenceEngine:
         }
 
     def _get_client(self, timeout: float = 30.0):
-        from openai import OpenAI
+        try:
+            from openai import OpenAI
+        except ImportError:
+            return None
         base_url = self.token_factory_base_url
         key = self._env("LLM_API_KEY") or self._env("RADEON_API_KEY") or "dummy-key"
         cache_key = (base_url, key, timeout)
@@ -148,8 +151,50 @@ class AMDInferenceEngine:
             self._state.update(fails=0, open_until=0.0, last_error="")
             self._clients.clear()
 
+    def _call_token_factory_raw(self, sys_prompt: str, user_prompt: str, timeout: float = 30.0) -> Optional[str]:
+        """Call AMD Token Factory endpoint using either OpenAI SDK or standard library urllib."""
+        client = self._get_client(timeout)
+        if client is not None:
+            resp = client.chat.completions.create(
+                model=self.token_factory_model,
+                temperature=0,
+                max_tokens=250,
+                messages=[
+                    {"role": "system", "content": sys_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+            )
+            return resp.choices[0].message.content or ""
+
+        # Standard library urllib fallback (zero external dependencies)
+        import urllib.request
+        import urllib.error
+        base_url = self.token_factory_base_url.rstrip("/")
+        url = f"{base_url}/chat/completions"
+        key = self._env("LLM_API_KEY") or self._env("RADEON_API_KEY") or ""
+        payload = json.dumps({
+            "model": self.token_factory_model,
+            "temperature": 0,
+            "max_tokens": 250,
+            "messages": [
+                {"role": "system", "content": sys_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers={
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return data["choices"][0]["message"]["content"] or ""
+
     def _infer_single_token_factory(self, r: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """Call AMD Token Factory using the OpenAI Python SDK."""
+        """Call AMD Token Factory using OpenAI SDK or standard library HTTP with retry and circuit breaker."""
         if not self.token_factory_configured:
             return None
         with self._lock:
@@ -161,7 +206,6 @@ class AMDInferenceEngine:
         except (ValueError, TypeError):
             timeout = 30.0
 
-        client = self._get_client(timeout)
         text = str(r.get("text") or r.get("review_text") or "")[:2000].replace(">>>", " ").replace("<<<", " ")
         rating = r.get("rating")
 
@@ -178,20 +222,12 @@ class AMDInferenceEngine:
         if rating is not None:
             user_prompt += f"\nStar rating: {rating}"
 
-        from openai import APIStatusError, APIError, APIConnectionError
         err = "unknown error"
         for attempt in range(3):
             try:
-                resp = client.chat.completions.create(
-                    model=self.token_factory_model,
-                    temperature=0,
-                    max_tokens=250,
-                    messages=[
-                        {"role": "system", "content": sys_prompt},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                )
-                content = resp.choices[0].message.content or ""
+                content = self._call_token_factory_raw(sys_prompt, user_prompt, timeout)
+                if not content:
+                    return None
                 content = re.sub(r"<think>.*?</think>", "", content, flags=re.S).strip()
                 m = re.search(r"\{.*\}", content, re.S)
                 if not m:
@@ -230,20 +266,10 @@ class AMDInferenceEngine:
                     processing_engine=f"AMD Token Factory ({self.token_factory_model})",
                 )
                 return asdict(res)
-            except APIStatusError as e:
-                err = f"HTTP {e.status_code}"
-                if e.status_code == 429 or e.status_code >= 500:
-                    try:
-                        headers = getattr(e.response, "headers", {})
-                        wait = float(headers.get("retry-after") or headers.get("Retry-After") or 0)
-                    except (TypeError, ValueError):
-                        wait = 0
-                    time.sleep(min(max(wait, 2 ** attempt), 10))
-                    continue
-                break
             except Exception as e:
                 err = type(e).__name__
-                break
+                time.sleep(min(2 ** attempt, 5))
+                continue
 
         with self._lock:
             self._state["fails"] += 1

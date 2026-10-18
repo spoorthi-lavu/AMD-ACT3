@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -86,6 +86,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      position: relative;
+      z-index: 20;
     }
 
     .site-logo {
@@ -132,6 +134,7 @@
 
     .hero-left {
       max-width: 540px;
+      position: relative;
       z-index: 5;
     }
 
@@ -639,21 +642,436 @@
       flex: 1;
     }
 
-    /* ---------- Momentum ---------- */
-    .momentum-block {
-      margin-bottom: 36px;
+    /* ---------- Momentum: Seller's View Dashboard ---------- */
+    .momentum-summary-panel {
+      background: var(--bg-white);
+      border: 1px solid var(--border-color);
+      padding: 20px 24px;
+      margin-bottom: 32px;
     }
 
-    .momentum-name {
+    .momentum-summary-title {
       font-family: var(--font-serif);
-      font-size: 21px;
+      font-size: 18px;
       font-weight: 500;
       color: var(--text-dark);
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
 
-    .momentum-state {
-      color: var(--color-primary);
+    .momentum-summary-table tr.clickable-row {
+      cursor: pointer;
+      transition: background .12s ease;
+    }
+
+    .momentum-summary-table tr.clickable-row:hover {
+      background: #fbfaf8;
+    }
+
+    .momentum-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border-color);
+      padding: 24px 28px;
+      margin-bottom: 36px;
+      transition: outline .2s ease;
+    }
+
+    .momentum-card.card-highlight {
+      outline: 2px solid var(--color-primary);
+    }
+
+    .momentum-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .momentum-header-left {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .momentum-title {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-dark);
+      letter-spacing: -0.2px;
+    }
+
+    .momentum-category {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .momentum-badges {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tag-synthetic {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      padding: 2px 7px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-page);
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .status-pill {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 9px;
+      border: 1px solid;
+      display: inline-block;
+    }
+
+    .status-likely-declining {
+      background: #fdf2f2;
+      color: var(--neg);
+      border-color: #f8d7da;
+    }
+
+    .status-emerging-decline {
+      background: #fdf8ed;
+      color: #9c6802;
+      border-color: #fae8c8;
+    }
+
+    .status-gaining-momentum {
+      background: #f0fdf4;
+      color: var(--pos);
+      border-color: #dcfce7;
+    }
+
+    .status-stable {
+      background: #f8f7f4;
+      color: var(--text-body);
+      border-color: var(--border-color);
+    }
+
+    .status-insufficient-data {
+      background: #f8f7f4;
+      color: var(--text-muted);
+      border-color: var(--border-color);
+    }
+
+    /* KPI strip */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .kpi-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .kpi-strip {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .kpi-box {
+      background: #faf9f7;
+      border: 1px solid var(--border-color);
+      padding: 14px 16px;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .kpi-val {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-dark);
+      line-height: 1.2;
+    }
+
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    .kpi-rising {
+      color: var(--neg);
+      font-weight: 600;
+    }
+
+    .kpi-falling {
+      color: var(--pos);
+      font-weight: 600;
+    }
+
+    .kpi-stable {
+      color: var(--text-muted);
+    }
+
+    /* Charts grid */
+    .momentum-charts-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 22px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 860px) {
+      .momentum-charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-panel {
+      background: #faf9f7;
+      border: 1px solid var(--border-color);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chart-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 14px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .legend-box {
+      width: 10px;
+      height: 10px;
+      display: inline-block;
+    }
+
+    .legend-dash {
+      width: 12px;
+      height: 0;
+      border-top: 1.5px dashed #b5b0a6;
+      display: inline-block;
+    }
+
+    /* Line chart SVG */
+    .line-chart-svg {
+      width: 100%;
+      height: auto;
+      max-height: 220px;
+      overflow: visible;
+      user-select: none;
+    }
+
+    .chart-hover-zone {
+      cursor: crosshair;
+    }
+
+    .chart-hover-zone:hover {
+      fill: rgba(0, 0, 0, 0.025);
+    }
+
+    /* Complaint themes */
+    .themes-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .theme-row {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .theme-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 12.5px;
+    }
+
+    .theme-title {
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    .theme-metrics {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .theme-bars-dual {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .theme-bar-bg {
+      height: 6px;
+      background: #ece8df;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .theme-bar-fill-last {
+      height: 100%;
+      background: #c0392b;
+      transition: width .3s ease;
+    }
+
+    .theme-bar-fill-prior {
+      height: 100%;
+      background: #b5b0a4;
+      transition: width .3s ease;
+    }
+
+    /* Early Warning Box */
+    .early-warning-box {
+      border-left: 3px solid var(--neg);
+      background: #fdf5f5;
+      padding: 12px 18px;
+      margin-bottom: 24px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .early-warning-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--neg);
+      flex-shrink: 0;
+    }
+
+    .early-warning-text {
+      color: #5c1813;
+    }
+
+    /* Floating Chart Tooltip */
+    .chart-tooltip {
+      position: fixed;
+      display: none;
+      pointer-events: none;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      padding: 8px 12px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-dark);
+      z-index: 9999;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .empty-trend-note {
+      padding: 18px 20px;
+      background: #faf9f7;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 13.5px;
+      margin-bottom: 24px;
+    }
+
+    /* ---------- Under the hood ---------- */
+    .section-divider {
+      border: 0;
+      border-top: 1px solid var(--border-color);
+      margin: 44px 0;
+    }
+
+    .under-hood-section {
+      scroll-margin-top: 30px;
+    }
+
+    .under-hood-subtitle {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text-dark);
+      margin: 26px 0 10px;
+    }
+
+    .under-hood-nav {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      font-size: 13.5px;
+      margin: 18px 0 28px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-light);
+      flex-wrap: wrap;
+    }
+
+    .under-hood-nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 2px;
+      cursor: pointer;
+      transition: color .15s ease, border-color .15s ease;
+    }
+
+    .under-hood-nav-link:hover {
+      color: var(--text-dark);
+      border-bottom-color: var(--text-dark);
+    }
+
+    .under-hood-nav .sep {
+      color: var(--text-muted);
     }
 
     /* ---------- Inference result ---------- */
@@ -776,8 +1194,7 @@
           <span class="nav-link" data-view="reviews">Reviews</span>
           <span class="nav-link" data-view="alerts">Alerts</span>
           <span class="nav-link" data-view="momentum">Momentum</span>
-          <span class="nav-link" data-view="quality">Data sources</span>
-          <span class="nav-link" data-view="settings">AMD inference</span>
+          <span class="nav-link" data-view="under-the-hood">Under the hood</span>
         </nav>
       </header>
 
@@ -788,7 +1205,7 @@
           <p class="hero-tagline">Every review tells a story.</p>
           <div class="hero-actions">
             <button class="btn-primary" onclick="switchView('reviews')">Read the reviews</button>
-            <button class="btn-outline" onclick="switchView('quality')">See where the data comes from</button>
+            <button class="btn-outline" onclick="switchView('under-the-hood', 'data')">See where the data comes from</button>
           </div>
         </div>
 
@@ -848,7 +1265,7 @@
   <!-- Overlapping stat card (icons removed, numbers lead) -->
   <div class="container overlapping-card-wrapper">
     <div class="feature-columns-box">
-      <div class="connector">
+      <div class="connector" onclick="switchView('under-the-hood', 'data')" style="cursor: pointer;" title="View data sources and cleaning rules">
         <svg class="connector-logo" viewBox="0 0 120 40" role="img" aria-label="Amazon">
           <text x="2" y="24" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="28"
             letter-spacing="-1" fill="#111">amazon</text>
@@ -860,7 +1277,7 @@
         <div class="feature-text">50,000 sampled reviews from the Amazon polarity dataset.</div>
       </div>
 
-      <div class="connector">
+      <div class="connector" onclick="switchView('under-the-hood', 'data')" style="cursor: pointer;" title="View data sources and cleaning rules">
         <svg class="connector-logo" viewBox="0 0 120 40" role="img" aria-label="Flipkart">
           <rect x="2" y="4" width="30" height="32" fill="#2874f0" />
           <text x="17" y="30" text-anchor="middle" font-family="Georgia, serif" font-weight="700" font-style="italic"
@@ -872,7 +1289,7 @@
         <div class="feature-text">205,047 reviews with product names, prices and star ratings.</div>
       </div>
 
-      <div class="connector">
+      <div class="connector" onclick="switchView('under-the-hood', 'amd')" style="cursor: pointer;" title="View AMD inference configuration">
         <svg class="connector-logo" viewBox="0 0 120 40" role="img" aria-label="AMD">
           <text x="2" y="30" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="32"
             letter-spacing="2" fill="#111">AMD</text>
@@ -952,17 +1369,64 @@
       }
     };
 
-    function switchView(viewName) {
+    function scrollToUnderHoodSection(secId, e) {
+      if (e) e.preventDefault();
+      try {
+        history.pushState(null, '', '/under-the-hood#' + secId);
+      } catch (err) {}
+      const el = document.getElementById('section-' + secId);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function switchView(viewName, sectionHash) {
+      // Normalize legacy and alias route names
+      if (viewName === 'quality' || viewName === 'sources' || viewName === 'data') {
+        viewName = 'under-the-hood';
+        sectionHash = sectionHash || 'data';
+      } else if (viewName === 'settings' || viewName === 'amd' || viewName === 'inference') {
+        viewName = 'under-the-hood';
+        sectionHash = sectionHash || 'amd';
+      } else if (viewName === 'storage') {
+        viewName = 'under-the-hood';
+        sectionHash = sectionHash || 'storage';
+      }
+
       AppState.currentView = viewName;
       document.querySelectorAll('.site-nav .nav-link').forEach(link => {
         link.classList.toggle('active', link.dataset.view === viewName);
       });
       document.body.classList.toggle('compact', viewName !== 'overview');
-      renderView();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Hide the filter bar on under-the-hood (not used there), show on other pages
+      const toolbar = document.querySelector('.scope-toolbar');
+      if (toolbar) {
+        toolbar.style.display = (viewName === 'under-the-hood') ? 'none' : 'flex';
+      }
+
+      // Update URL in browser history
+      let newUrl = '/' + (viewName === 'overview' ? '' : viewName);
+      if (viewName === 'under-the-hood' && sectionHash) {
+        newUrl += '#' + sectionHash;
+      }
+      try {
+        if (window.location.pathname !== '/' + viewName || window.location.hash !== (sectionHash ? '#' + sectionHash : '')) {
+          history.pushState(null, '', newUrl || '/');
+        }
+      } catch (err) {}
+
+      renderView(sectionHash);
+
+      if (sectionHash) {
+        setTimeout(() => {
+          const el = document.getElementById('section-' + sectionHash);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 120);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
 
-    async function renderView() {
+    async function renderView(sectionHash) {
       const container = document.getElementById('view-content');
       container.innerHTML = '<div class="empty" style="text-align:center;">Loading…</div>';
       try {
@@ -973,8 +1437,7 @@
         else if (v === 'reviews') await renderReviews(container);
         else if (v === 'alerts') await renderAlerts(container);
         else if (v === 'momentum') await renderMomentum(container);
-        else if (v === 'quality') await renderQuality(container);
-        else if (v === 'settings') renderSettings(container, summary);
+        else if (v === 'under-the-hood' || v === 'quality' || v === 'settings') await renderUnderTheHood(container, summary, sectionHash);
       } catch (err) {
         container.innerHTML = `<div class="section"><div class="section-title" style="color:var(--neg);">Couldn’t load this page</div><p class="note" style="margin-top:8px;">${escapeHtml(err.message)}. Check that the backend is running, then reload.</p></div>`;
       }
@@ -1217,7 +1680,7 @@
                 <button class="btn-dark action-submit" data-key="${escapeHtml(a.key)}">Save note</button>
               </div>
             </div>`).join('') : `
-            <div class="empty">${AppState.mode === 'real' ? 'No alerts, because the real datasets have no dates.' : 'No alerts for the current filters.'}</div>
+            <div class="empty">${AppState.mode === 'real' ? 'No alerts, because the real datasets have no dates.' : `No alerts for ${AppState.category ? escapeHtml(AppState.category) : 'this selection'} in this period.`}</div>
           `}
         </div>
       `;
@@ -1248,50 +1711,423 @@
       });
     }
 
+    function showChartTooltip(e, html) {
+      let tip = document.getElementById('chart-tooltip');
+      if (!tip) {
+        tip = document.createElement('div');
+        tip.id = 'chart-tooltip';
+        tip.className = 'chart-tooltip';
+        document.body.appendChild(tip);
+      }
+      tip.innerHTML = html;
+      tip.style.display = 'block';
+      positionChartTooltip(e);
+    }
+
+    function positionChartTooltip(e) {
+      const tip = document.getElementById('chart-tooltip');
+      if (!tip || tip.style.display !== 'block') return;
+      const x = e.clientX + 14;
+      const y = e.clientY - 20;
+      const maxX = window.innerWidth - tip.offsetWidth - 12;
+      tip.style.left = Math.max(8, Math.min(x, maxX)) + 'px';
+      tip.style.top = Math.max(12, y) + 'px';
+    }
+
+    function hideChartTooltip() {
+      const tip = document.getElementById('chart-tooltip');
+      if (tip) tip.style.display = 'none';
+    }
+
+    window.scrollToMomentumCard = function(idx) {
+      const el = document.getElementById(`momentum-card-${idx}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.classList.add('card-highlight');
+        setTimeout(() => el.classList.remove('card-highlight'), 1800);
+      }
+    };
+
+    function renderWeeklyLineChart(series) {
+      if (!series || series.length === 0) {
+        return '<div class="empty" style="padding:20px 0;">No weekly data available.</div>';
+      }
+
+      const w = 540;
+      const h = 210;
+      const padLeft = 42;
+      const padRight = 24;
+      const padTop = 26;
+      const padBottom = 28;
+      const plotW = w - padLeft - padRight;
+      const plotH = h - padTop - padBottom;
+
+      const getX = i => padLeft + i * (plotW / (series.length - 1));
+      const getY = val => (padTop + plotH) - (val / 100) * plotH;
+
+      // Fixed Y-axis grid 0 to 100
+      const yTicks = [0, 25, 50, 75, 100];
+      let gridSvg = '';
+      yTicks.forEach(tick => {
+        const y = getY(tick);
+        gridSvg += `
+          <line x1="${padLeft}" y1="${y}" x2="${w - padRight}" y2="${y}" stroke="#ece8df" stroke-width="1" />
+          <text x="${padLeft - 8}" y="${y + 3.5}" text-anchor="end" font-size="9.5" fill="#8c8980" font-family="ui-monospace, monospace">${tick}%</text>
+        `;
+      });
+
+      // Divider between W4 and W5 (W4 is series[3], W5 is series[4])
+      const divX = (getX(3) + getX(4)) / 2;
+      const dividerSvg = `
+        <line x1="${divX}" y1="${padTop - 2}" x2="${divX}" y2="${padTop + plotH}" stroke="#b5b0a6" stroke-dasharray="3,3" stroke-width="1.2" />
+        <text x="${divX - 6}" y="${padTop - 8}" text-anchor="end" font-size="9" fill="#73726c" font-weight="500">prior 28 days</text>
+        <text x="${divX}" y="${padTop - 8}" text-anchor="middle" font-size="9" fill="#a8a39a">|</text>
+        <text x="${divX + 6}" y="${padTop - 8}" text-anchor="start" font-size="9" fill="#73726c" font-weight="500">last 28 days</text>
+      `;
+
+      // X-axis week labels
+      let xLabelsSvg = '';
+      series.forEach((pt, i) => {
+        const x = getX(i);
+        xLabelsSvg += `
+          <text x="${x}" y="${h - 8}" text-anchor="middle" font-size="10" fill="#73726c" font-family="ui-monospace, monospace" font-weight="500">${pt.week_label}</text>
+        `;
+      });
+
+      // Build path segments breaking on nulls
+      function buildPath(key, strokeColor) {
+        let segments = [];
+        let cur = [];
+        series.forEach((pt, i) => {
+          const val = pt[key];
+          if (val !== null && val !== undefined) {
+            cur.push({ x: getX(i), y: getY(val), val });
+          } else {
+            if (cur.length > 0) {
+              segments.push(cur);
+              cur = [];
+            }
+          }
+        });
+        if (cur.length > 0) segments.push(cur);
+
+        let paths = '';
+        let dots = '';
+        segments.forEach(seg => {
+          if (seg.length === 1) {
+            dots += `<circle cx="${seg[0].x.toFixed(1)}" cy="${seg[0].y.toFixed(1)}" r="3.5" fill="${strokeColor}" />`;
+          } else {
+            const d = seg.map((p, idx) => (idx === 0 ? `M ${p.x.toFixed(1)} ${p.y.toFixed(1)}` : `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)).join(' ');
+            paths += `<path d="${d}" fill="none" stroke="${strokeColor}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />`;
+            seg.forEach(p => {
+              dots += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="#ffffff" stroke="${strokeColor}" stroke-width="2" />`;
+            });
+          }
+        });
+        return paths + dots;
+      }
+
+      const posSvg = buildPath('positive_pct', '#1e824c');
+      const negSvg = buildPath('negative_pct', '#c0392b');
+
+      // Hover zones
+      let hoverZones = '';
+      series.forEach((pt, i) => {
+        const x = getX(i);
+        const colW = plotW / (series.length - 1);
+        const zX = x - colW / 2;
+        const encoded = encodeURIComponent(JSON.stringify(pt));
+        hoverZones += `
+          <rect x="${zX}" y="${padTop - 4}" width="${colW}" height="${plotH + 8}" fill="transparent"
+                class="chart-hover-zone" data-point="${encoded}" />
+        `;
+      });
+
+      return `
+        <div class="line-chart-container" style="position:relative; width:100%;">
+          <svg viewBox="0 0 ${w} ${h}" class="line-chart-svg" preserveAspectRatio="xMidYMid meet">
+            ${gridSvg}
+            ${dividerSvg}
+            ${xLabelsSvg}
+            ${posSvg}
+            ${negSvg}
+            ${hoverZones}
+          </svg>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="legend-dot" style="background:#1e824c;"></span>Positive %</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#c0392b;"></span>Negative %</span>
+            <span class="legend-item"><span class="legend-dash"></span>Window boundary</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderComplaintThemesChart(topics) {
+      if (!topics || topics.length === 0 || topics.every(t => t.count_last === 0 && t.count_prior === 0)) {
+        return '<div class="empty" style="padding:28px 0; font-size:13px;">No complaint topics in this window.</div>';
+      }
+
+      const maxVal = Math.max(...topics.map(t => Math.max(t.count_last, t.count_prior)), 1);
+
+      return `
+        <div class="themes-chart">
+          <div class="themes-rows">
+            ${topics.map(t => {
+              const wLast = Math.round((t.count_last / maxVal) * 100);
+              const wPrior = Math.round((t.count_prior / maxVal) * 100);
+              const delta = t.growth;
+              const deltaStr = delta > 0 ? `+${delta}` : `${delta}`;
+              const deltaClass = delta > 0 ? 'kpi-rising' : delta < 0 ? 'kpi-falling' : 'kpi-stable';
+              return `
+                <div class="theme-row">
+                  <div class="theme-info">
+                    <span class="theme-title">${escapeHtml(t.label)}</span>
+                    <span class="theme-metrics">
+                      <span style="font-weight:600; color:var(--text-dark);">${t.count_last}</span>
+                      <span class="dim" style="font-size:11px;">(prior: ${t.count_prior})</span>
+                      <span class="${deltaClass}" style="font-size:11px; margin-left:4px;">${deltaStr}</span>
+                    </span>
+                  </div>
+                  <div class="theme-bars-dual">
+                    <div class="theme-bar-bg" title="Last 28 days: ${t.count_last}">
+                      <div class="theme-bar-fill-last" style="width:${wLast}%;"></div>
+                    </div>
+                    <div class="theme-bar-bg" title="Prior 28 days: ${t.count_prior}">
+                      <div class="theme-bar-fill-prior" style="width:${wPrior}%;"></div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <div class="chart-legend" style="margin-top:10px;">
+            <span class="legend-item"><span class="legend-box" style="background:#c0392b;"></span>Last 28 days</span>
+            <span class="legend-item"><span class="legend-box" style="background:#b5b0a4;"></span>Prior 28 days</span>
+          </div>
+        </div>
+      `;
+    }
+
     async function renderMomentum(container) {
-      
       const data = await API.get('/api/momentum');
+
+      // Summary table at the top of the page
+      let summaryHtml = '';
+      if (data && data.length > 0 && AppState.mode !== 'real') {
+        summaryHtml = `
+          <div class="momentum-summary-panel">
+            <div class="momentum-summary-title">Summary: Filtered Products</div>
+            <table class="data-table momentum-summary-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Avg rating</th>
+                  <th>Reviews (last 28d)</th>
+                  <th>Neg. trend</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.map((p, idx) => `
+                  <tr class="clickable-row" onclick="scrollToMomentumCard(${idx})">
+                    <td style="font-weight:500; text-decoration:underline; text-decoration-color:var(--border-color); text-underline-offset:3px;">
+                      ${escapeHtml(p.product)}
+                    </td>
+                    <td><code>${p.avg_rating !== null ? p.avg_rating.toFixed(2) + ' ★' : '—'}</code></td>
+                    <td><code>${p.n ? p.n[0] : 0}</code></td>
+                    <td>
+                      <span class="${p.neg_trend === 'rising' ? 'kpi-rising' : p.neg_trend === 'falling' ? 'kpi-falling' : 'kpi-stable'}">
+                        ${p.neg_trend_icon || '―'} ${p.neg_trend_label || 'Stable'}
+                        ${p.neg_share_delta !== undefined && p.neg_share_delta !== null ? `(${p.neg_share_delta > 0 ? '+' : ''}${p.neg_share_delta}%)` : ''}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="status-pill status-${(p.state || '').toLowerCase().replace(/\s+/g, '-')}">
+                        ${escapeHtml(p.state)}
+                      </span>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
 
       container.innerHTML = `
         <div class="section">
           <div class="section-head">
             <h2 class="section-title">Momentum</h2>
-            <span class="section-meta">${AppState.mode === 'real' ? 'Real data' : AppState.mode === 'benchmark' ? 'Synthetic benchmark (simulated dates)' : 'Synthetic demo'}</span>
+            <span class="section-meta">${AppState.mode === 'real' ? 'Real data' : 'Synthetic benchmark (simulated dates)'}</span>
           </div>
 
           <p class="note">
             ${AppState.mode === 'real'
-          ? 'Momentum compares the latest 28 days with the 28 days before. The real datasets have no timestamps, so there is nothing to compare. Switch to the synthetic demo to see how products are classified.'
-          : 'Each product is compared across two 28-day windows and labelled by how its indicators moved.'}
+              ? 'Momentum compares the latest 28 days with the 28 days before. The real datasets have no timestamps, so there is nothing to compare. Switch to the synthetic demo or benchmark to see how products are classified.'
+              : 'Synthetic benchmark (simulated dates): seller’s view dashboard comparing the latest 28 days with the prior 28 days across sentiment trajectories and complaint themes.'}
           </p>
 
-          ${data.map(p => `
-            <div class="momentum-block">
-              <h3 class="momentum-name">${escapeHtml(p.product)}: <span class="momentum-state">${escapeHtml(p.state)}</span></h3>
-              ${p.indicators && p.indicators.length > 0 ? `
-                <table class="data-table">
-                  <thead><tr><th>Indicator</th><th>Last 28 days</th><th>Prior 28 days</th><th>Change</th></tr></thead>
-                  <tbody>
-                    ${p.indicators.map(ind => `
-                      <tr>
-                        <td>${escapeHtml(ind.name)}</td>
-                        <td>${escapeHtml(ind.now)}</td>
-                        <td>${escapeHtml(ind.before)}</td>
-                        <td>${ind.signal === 'worse' ? '▼ Worse' : ind.signal === 'better' ? '▲ Better' : 'Stable'}</td>
-                      </tr>`).join('')}
-                  </tbody>
-                </table>
-              ` : `<p class="note">No date windows available for this product.</p>`}
-            </div>`).join('')}
+          ${summaryHtml}
+
+          ${data && data.length > 0 ? data.map((p, idx) => {
+            const hasData = p.has_enough_data;
+            const stateClass = (p.state || '').toLowerCase().replace(/\s+/g, '-');
+            const showEarlyWarning = hasData && (p.state === 'Likely declining' || p.state === 'Emerging decline') && p.early_warning;
+
+            return `
+              <div class="momentum-card" id="momentum-card-${idx}">
+                <div class="momentum-card-header">
+                  <div class="momentum-header-left">
+                    <h3 class="momentum-title">${escapeHtml(p.product)}</h3>
+                    ${p.category ? `<span class="momentum-category">${escapeHtml(p.category)}</span>` : ''}
+                  </div>
+                  <div class="momentum-badges">
+                    <span class="tag-synthetic">SYNTHETIC DATA</span>
+                    <span class="status-pill status-${stateClass}">${escapeHtml(p.state)}</span>
+                  </div>
+                </div>
+
+                ${!hasData ? `
+                  <div class="empty-trend-note">
+                    Not enough data for a trend (requires at least 10 reviews in both windows; currently ${p.n ? p.n[0] : 0} in last 28d, ${p.n ? p.n[1] : 0} in prior 28d).
+                  </div>
+                ` : `
+                  <!-- 1. KPI strip (4 small boxes) -->
+                  <div class="kpi-strip">
+                    <div class="kpi-box">
+                      <div class="kpi-label">Average Rating</div>
+                      <div class="kpi-val">${p.avg_rating !== null ? p.avg_rating.toFixed(2) + ' ★' : '—'}</div>
+                      <div class="kpi-sub">Prior 28d: ${p.avg_rating_prior !== null ? p.avg_rating_prior.toFixed(2) + ' ★' : '—'}</div>
+                    </div>
+
+                    <div class="kpi-box">
+                      <div class="kpi-label">Negative Share</div>
+                      <div class="kpi-val">${p.negative_share_prior}% → ${p.negative_share}%</div>
+                      <div class="kpi-sub">
+                        <span class="${p.neg_trend === 'rising' ? 'kpi-rising' : p.neg_trend === 'falling' ? 'kpi-falling' : 'kpi-stable'}">
+                          ${p.neg_trend_icon} ${p.neg_share_delta > 0 ? '+' : ''}${p.neg_share_delta}% ${p.neg_trend_label}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="kpi-box">
+                      <div class="kpi-label">Top Complaint</div>
+                      <div class="kpi-val">${escapeHtml(p.top_complaint_topic)}</div>
+                      <div class="kpi-sub">${p.top_complaint_count} complaints in last 28d</div>
+                    </div>
+
+                    <div class="kpi-box">
+                      <div class="kpi-label">Momentum Status</div>
+                      <div class="kpi-val" style="font-size:15px; font-weight:500;">
+                        <span class="status-pill status-${stateClass}">${escapeHtml(p.state)}</span>
+                      </div>
+                      <div class="kpi-sub">${p.n ? p.n[0] : 0} reviews last 28d (${p.n ? p.n[1] : 0} prior)</div>
+                    </div>
+                  </div>
+
+                  <!-- 2 & 3: Charts grid (Line Chart + Complaint Themes Bar Chart) -->
+                  <div class="momentum-charts-grid">
+                    <div class="chart-panel">
+                      <div class="chart-head">
+                        <span class="chart-title">8-Week Sentiment Trajectory</span>
+                        <span class="dim" style="font-size:11.5px;">W1–W4 prior vs W5–W8 last 28d</span>
+                      </div>
+                      ${renderWeeklyLineChart(p.weekly_series)}
+                    </div>
+
+                    <div class="chart-panel">
+                      <div class="chart-head">
+                        <span class="chart-title">Complaint Themes</span>
+                        <span class="dim" style="font-size:11.5px;">Top 5 in last 28 days</span>
+                      </div>
+                      ${renderComplaintThemesChart(p.complaint_topics)}
+                    </div>
+                  </div>
+
+                  <!-- 4. Early warning callout (ONLY for declining products) -->
+                  ${showEarlyWarning ? `
+                    <div class="early-warning-box">
+                      <span class="early-warning-label">Early Warning</span>
+                      <span class="early-warning-text">${escapeHtml(p.early_warning)}</span>
+                    </div>
+                  ` : ''}
+                `}
+
+                <!-- 5. Existing indicators table below the charts -->
+                ${p.indicators && p.indicators.length > 0 ? `
+                  <table class="data-table">
+                    <thead><tr><th>Indicator</th><th>Last 28 days</th><th>Prior 28 days</th><th>Change</th></tr></thead>
+                    <tbody>
+                      ${p.indicators.map(ind => `
+                        <tr>
+                          <td>${escapeHtml(ind.name)}</td>
+                          <td>${escapeHtml(ind.now)}</td>
+                          <td>${escapeHtml(ind.before)}</td>
+                          <td>${ind.signal === 'worse' ? '▼ Worse' : ind.signal === 'better' ? '▲ Better' : 'Stable'}</td>
+                        </tr>`).join('')}
+                    </tbody>
+                  </table>
+                ` : `<p class="note" style="margin-top:12px; margin-bottom:0;">No indicator rows available for this product.</p>`}
+              </div>
+            `;
+          }).join('') : `
+            <div class="empty">${AppState.mode === 'real' ? 'No momentum data, because the real datasets have no dates.' : `No momentum data for ${AppState.category ? escapeHtml(AppState.category) : 'this selection'}.`}</div>
+          `}
         </div>
       `;
+
+      // Attach tooltip hover handlers for line charts
+      container.querySelectorAll('.chart-hover-zone').forEach(zone => {
+        zone.addEventListener('mouseenter', e => {
+          try {
+            const pt = JSON.parse(decodeURIComponent(zone.dataset.point));
+            const html = `
+              <div style="font-weight:600; margin-bottom:4px; font-family:var(--font-sans); color:var(--text-dark);">
+                ${escapeHtml(pt.week_label)} <span style="font-weight:normal; font-size:11px; color:var(--text-muted);">(${escapeHtml(pt.start_date)} – ${escapeHtml(pt.end_date)})</span>
+              </div>
+              ${pt.n_reviews === 0 ? '<div style="color:var(--text-muted);">No reviews this week</div>' : `
+                <div style="margin-bottom:2px;">Reviews: <code style="font-weight:600;">${pt.n_reviews}</code></div>
+                <div style="margin-bottom:2px;">Avg rating: <code style="font-weight:600;">${pt.avg_rating !== null ? pt.avg_rating.toFixed(2) + ' ★' : '—'}</code></div>
+                <div style="color:var(--pos); margin-bottom:2px;">Positive: <code style="font-weight:600;">${pt.positive_pct}%</code></div>
+                <div style="color:var(--neg);">Negative: <code style="font-weight:600;">${pt.negative_pct}%</code></div>
+              `}
+            `;
+            showChartTooltip(e, html);
+          } catch (err) {}
+        });
+        zone.addEventListener('mousemove', e => positionChartTooltip(e));
+        zone.addEventListener('mouseleave', () => hideChartTooltip());
+      });
     }
 
-    async function renderQuality(container) {
+    async function renderUnderTheHood(container, summary, sectionHash) {
       const report = await API.get('/api/quality_report');
+      const amd = (summary && summary.amd_status) ? summary.amd_status : {};
+      const tfStatus = amd.token_factory_active
+        ? 'Connected (' + escapeHtml(amd.token_factory_model) + ')'
+        : (amd.circuit_paused ? 'Paused, retrying after a cooldown' : 'Not configured, using CPU fallback');
 
       container.innerHTML = `
-        <div class="section">
+        <div class="section" id="section-head-under-hood">
+          <div class="section-head">
+            <h2 class="section-title">Under the hood</h2>
+            <span class="section-meta">Architecture, data pipelines, hardware &amp; storage</span>
+          </div>
+          <p class="lede">
+            Full transparency into our data pipeline: cleaning criteria, inference hardware, fallback mechanisms, and SQLite storage schema.
+          </p>
+
+          <div class="under-hood-nav">
+            <a href="#data" class="under-hood-nav-link" onclick="scrollToUnderHoodSection('data', event)">Data</a>
+            <span class="sep">·</span>
+            <a href="#amd" class="under-hood-nav-link" onclick="scrollToUnderHoodSection('amd', event)">AMD inference</a>
+            <span class="sep">·</span>
+            <a href="#storage" class="under-hood-nav-link" onclick="scrollToUnderHoodSection('storage', event)">Storage</a>
+          </div>
+        </div>
+
+        <!-- 1. Where the data comes from -->
+        <div id="section-data" class="under-hood-section">
           <div class="section-head">
             <h2 class="section-title">Where the data comes from</h2>
           </div>
@@ -1299,7 +2135,7 @@
             Every review passes through one cleaning script (<code>backend/data_processor.py</code>). Missing dates, prices and product names stay empty. Nothing is filled in.
           </p>
 
-          <table class="data-table" style="margin-bottom:36px;">
+          <table class="data-table" style="margin-bottom:28px;">
             <thead>
               <tr><th>Dataset</th><th>Raw rows</th><th>Kept</th><th>Dropped</th><th>Duplicates</th><th>Products</th><th>Categories</th></tr>
             </thead>
@@ -1317,25 +2153,26 @@
             </tbody>
           </table>
 
-          <h3 class="momentum-name">Cleaning rules</h3>
+          <h3 class="under-hood-subtitle">Cleaning rules</h3>
           <p class="lede" style="margin-bottom:10px;"><strong style="color:var(--text-dark);">Flipkart, shifted rows.</strong> Rows where the product title was repeated in the price and rating columns were dropped.</p>
           <p class="lede" style="margin-bottom:10px;"><strong style="color:var(--text-dark);">Flipkart, empty reviews.</strong> Rows with no review text were dropped. Rows with a body but no headline were kept.</p>
-          <p class="lede" style="margin-bottom:0;"><strong style="color:var(--text-dark);">Amazon.</strong> Read in chunks to save memory. Polarity 1 is negative and 2 is positive.</p>
+          <p class="lede" style="margin-bottom:14px;"><strong style="color:var(--text-dark);">Amazon.</strong> Read in chunks to save memory. Polarity 1 is negative and 2 is positive.</p>
+
+          <div class="note" style="margin-top:20px; margin-bottom:0;">
+            <strong style="color:var(--text-dark);">Synthetic benchmark disclaimer:</strong>
+            ${AppState.mode === 'benchmark'
+              ? 'Currently viewing benchmark mode: 10,000 locally generated synthetic reviews from templates for detector calibration. Platform, product, price, and review dates are simulated attributes assigned by a seeded script, not live marketplace records.'
+              : 'Real marketplace data (Amazon and Flipkart) have no native timestamps in the Kaggle CSVs, so alert and momentum date-window comparisons require simulated benchmark dates.'}
+          </div>
         </div>
-      `;
-    }
 
-    function renderSettings(container, summary) {
-      const amd = summary.amd_status || {};
-      const tfStatus = amd.token_factory_active
-        ? 'Connected (' + escapeHtml(amd.token_factory_model) + ')'
-        : (amd.circuit_paused ? 'Paused, retrying after a cooldown' : 'Not configured, using CPU fallback');
+        <hr class="section-divider" />
 
-      container.innerHTML = `
-        <div class="section">
+        <!-- 2. AMD inference -->
+        <div id="section-amd" class="under-hood-section">
           <div class="section-head"><h2 class="section-title">AMD inference</h2></div>
           <p class="lede">Basic statistics always run on the host CPU. Only the sentiment and complaint classification uses an AMD GPU, and this page says plainly when it isn’t.</p>
-          <table class="data-table">
+          <table class="data-table" style="margin-bottom:32px;">
             <tbody>
               <tr><td class="dim" style="width:240px;">Hardware target</td><td>${escapeHtml(amd.hardware_target || 'AMD Instinct MI300 or Radeon RX 7000 series (ROCm 6.x)')}</td></tr>
               <tr><td class="dim">Running on</td><td>${escapeHtml(amd.engine_type || 'Host CPU, rule-based')}</td></tr>
@@ -1345,12 +2182,10 @@
               <tr><td class="dim">Batch size</td><td>512 reviews</td></tr>
             </tbody>
           </table>
-        </div>
 
-        <div class="section">
-          <div class="section-head"><h2 class="section-title">Try it on a review</h2></div>
+          <h3 class="under-hood-subtitle">Try it on a review</h3>
           <p class="lede">Uses DeepSeek-V4-Flash on AMD Token Factory when it’s configured. Otherwise the CPU rules classify it.</p>
-          <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center;">
+          <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
             <input type="text" id="infer-input" class="form-input" placeholder="Paste a customer review" style="flex:1; min-width:280px;" value="The air cooler is chilling and quiet, but the packaging was damaged in delivery.">
             <select id="infer-rating" class="form-select">
               <option value="4">4 stars</option>
@@ -1364,18 +2199,24 @@
           <div id="infer-result" class="infer-result"></div>
         </div>
 
-        <div class="section">
+        <hr class="section-divider" />
+
+        <!-- 3. Storage -->
+        <div id="section-storage" class="under-hood-section">
           <div class="section-head"><h2 class="section-title">Storage</h2></div>
+          <p class="lede">Normalized SQLite database storing ingested reviews, cleaning quality metrics, and audit log events.</p>
           <table class="data-table">
             <tbody>
               <tr><td class="dim" style="width:240px;">Database</td><td>SQLite at <code>backend/data/rf.db</code>, indexed on source, category, product, sentiment and rating</td></tr>
               <tr><td class="dim">Loaded reviews</td><td>205,047 from Flipkart and a 50,000 sample from Amazon</td></tr>
               <tr><td class="dim">Cleaned files</td><td><code>data/processed/flipkart_cleaned.csv</code> (205k rows), <code>data/processed/amazon_cleaned.csv</code> (3.6M rows)</td></tr>
+              <tr><td class="dim">Schema tables</td><td><code>reviews</code>, <code>data_quality</code>, <code>audit</code>, <code>catalog</code></td></tr>
             </tbody>
           </table>
         </div>
       `;
 
+      // Classifier button
       const btn = container.querySelector('#btn-run-infer');
       if (btn) {
         btn.addEventListener('click', async () => {
@@ -1407,6 +2248,22 @@
           }
         });
       }
+
+      if (sectionHash) {
+        requestAnimationFrame(() => {
+          const el = container.querySelector('#section-' + sectionHash);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    }
+
+    // Backward-compatibility forwarders
+    async function renderQuality(container) {
+      return switchView('under-the-hood', 'data');
+    }
+
+    async function renderSettings(container, summary) {
+      return switchView('under-the-hood', 'amd');
     }
 
     function updateHeaderStats(s) {
@@ -1422,14 +2279,40 @@
       }
     }
 
+    const platSelect = document.getElementById('filter-platform');
+    const catSelect = document.getElementById('filter-category');
+    const prodSelect = document.getElementById('filter-product');
+
+    async function reloadProductOptions() {
+      try {
+        const s = await API.get('/api/summary');
+        prodSelect.innerHTML = '';
+        prodSelect.add(new Option('All products', ''));
+        (s.products || []).slice(0, 50).forEach(pr => prodSelect.add(new Option(pr, pr)));
+        prodSelect.value = AppState.product || '';
+      } catch (e) {
+        console.warn('Could not reload product options:', e);
+      }
+    }
+
     async function reloadFilterOptions() {
-      const fill = (id, label, values) => { const el = document.getElementById(id); el.innerHTML = ''; el.add(new Option(label, '')); (values || []).forEach(v => el.add(new Option(v, v))); };
+      const fill = (id, label, values) => {
+        const el = document.getElementById(id);
+        el.innerHTML = '';
+        el.add(new Option(label, ''));
+        (values || []).forEach(v => el.add(new Option(v, v)));
+      };
       try {
         const s = await API.get('/api/summary');
         fill('filter-platform', 'All sources', s.all_platforms);
         fill('filter-category', 'All categories', s.all_categories);
         fill('filter-product', 'All products', (s.products || []).slice(0, 50));
-      } catch (e) { console.warn('Could not reload filter options:', e); }
+        platSelect.value = AppState.platform || '';
+        catSelect.value = AppState.category || '';
+        prodSelect.value = AppState.product || '';
+      } catch (e) {
+        console.warn('Could not reload filter options:', e);
+      }
     }
 
     async function init() {
@@ -1437,40 +2320,71 @@
         link.addEventListener('click', () => switchView(link.dataset.view));
       });
 
-      document.getElementById('filter-mode').addEventListener('change', e => {
-        AppState.mode = e.target.value; AppState.platform = ''; AppState.category = ''; AppState.product = ''; AppState.reviewsFilter.page = 1; ['filter-platform','filter-category','filter-product'].forEach(id => { document.getElementById(id).value = ''; }); reloadFilterOptions();
+      // Handle direct URL routing and hash deep-linking on initial load
+      let initialView = 'overview';
+      let initialHash = '';
+      const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
+      const hash = window.location.hash.replace(/^#/, '');
+
+      if (path === 'under-the-hood' || path === 'sources' || path === 'quality' || path === 'amd' || path === 'settings') {
+        initialView = 'under-the-hood';
+        initialHash = hash || (path === 'amd' || path === 'settings' ? 'amd' : 'data');
+      } else if (path === 'reviews' || path === 'alerts' || path === 'momentum') {
+        initialView = path;
+      }
+
+      window.addEventListener('popstate', () => {
+        const p = window.location.pathname.replace(/^\/+|\/+$/g, '');
+        const h = window.location.hash.replace(/^#/, '');
+        if (p === 'under-the-hood' || p === 'sources' || p === 'quality' || p === 'amd' || p === 'settings') {
+          switchView('under-the-hood', h || 'data');
+        } else {
+          switchView(p || 'overview');
+        }
+      });
+
+      document.getElementById('filter-mode').addEventListener('change', async e => {
+        AppState.mode = e.target.value;
+        AppState.platform = '';
+        AppState.category = '';
+        AppState.product = '';
+        AppState.reviewsFilter.page = 1;
+        await reloadFilterOptions();
         renderView();
       });
 
-      const platSelect = document.getElementById('filter-platform');
-      const catSelect = document.getElementById('filter-category');
-      const prodSelect = document.getElementById('filter-product');
+      platSelect.addEventListener('change', async e => {
+        AppState.platform = e.target.value;
+        AppState.reviewsFilter.page = 1;
+        await reloadProductOptions();
+        renderView();
+      });
 
-      platSelect.addEventListener('change', e => { AppState.platform = e.target.value; AppState.reviewsFilter.page = 1; renderView(); });
-      catSelect.addEventListener('change', e => { AppState.category = e.target.value; AppState.reviewsFilter.page = 1; renderView(); });
-      prodSelect.addEventListener('change', e => { AppState.product = e.target.value; AppState.reviewsFilter.page = 1; renderView(); });
+      catSelect.addEventListener('change', async e => {
+        AppState.category = e.target.value;
+        AppState.product = '';
+        AppState.reviewsFilter.page = 1;
+        await reloadProductOptions();
+        renderView();
+      });
 
-      document.getElementById('btn-reset-filters').addEventListener('click', () => {
+      prodSelect.addEventListener('change', e => {
+        AppState.product = e.target.value;
+        AppState.reviewsFilter.page = 1;
+        renderView();
+      });
+
+      document.getElementById('btn-reset-filters').addEventListener('click', async () => {
         AppState.platform = '';
         AppState.category = '';
         AppState.product = '';
         AppState.reviewsFilter = { page: 1, q: '', sentiment: '', rating: '', sort: '' };
-        platSelect.value = '';
-        catSelect.value = '';
-        prodSelect.value = '';
+        await reloadFilterOptions();
         renderView();
       });
 
-      try {
-        const s = await API.get('/api/summary');
-        (s.all_platforms || []).forEach(p => platSelect.add(new Option(p, p)));
-        (s.all_categories || []).forEach(c => catSelect.add(new Option(c, c)));
-        (s.products || []).slice(0, 50).forEach(pr => prodSelect.add(new Option(pr, pr)));
-      } catch (e) {
-        console.warn('Could not load filter options:', e);
-      }
-
-      renderView();
+      await reloadFilterOptions();
+      switchView(initialView, initialHash);
     }
 
     document.addEventListener('DOMContentLoaded', init);

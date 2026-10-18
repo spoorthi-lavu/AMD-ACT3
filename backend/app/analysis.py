@@ -178,18 +178,54 @@ def momentum(rows, today):
         return [{
             "product": "Current Marketplace Catalog",
             "state": "Requires Dated Records",
+            "has_enough_data": False,
             "indicators": [],
-            "n": [0, 0]
+            "n": [0, 0],
+            "avg_rating": None,
+            "avg_rating_prior": None,
+            "negative_share": None,
+            "negative_share_prior": None,
+            "neg_share_delta": 0,
+            "neg_trend": "stable",
+            "neg_trend_label": "Stable",
+            "neg_trend_icon": "―",
+            "top_complaint_topic": "None",
+            "top_complaint_count": 0,
+            "early_warning": None,
+            "weekly_series": [],
+            "complaint_topics": []
         }]
 
     out = []
     for prod in sorted({r["product"] for r in dated_rows if r.get("product")}):
         pr = [r for r in dated_rows if r["product"] == prod]
+        cat = pr[0].get("category", "") if pr else ""
         cur = [r for r in pr if r["date"] > today - dt.timedelta(days=28)]
         prev = [r for r in pr if today - dt.timedelta(days=56) < r["date"] <= today - dt.timedelta(days=28)]
-        if len(cur) < 20 or len(prev) < 20:
-            out.append({"product": prod, "state": "Insufficient data", "indicators": [], "n": [len(cur), len(prev)]})
+        if len(cur) < 10 or len(prev) < 10:
+            out.append({
+                "product": prod,
+                "category": cat,
+                "state": "Insufficient data",
+                "has_enough_data": False,
+                "indicators": [],
+                "n": [len(cur), len(prev)],
+                "avg_rating": None,
+                "avg_rating_prior": None,
+                "negative_share": None,
+                "negative_share_prior": None,
+                "neg_share_delta": 0,
+                "neg_trend": "stable",
+                "neg_trend_label": "Stable",
+                "neg_trend_icon": "―",
+                "top_complaint_topic": "None",
+                "top_complaint_count": 0,
+                "early_warning": None,
+                "weekly_series": [],
+                "complaint_topics": []
+            })
             continue
+
         avg = lambda L: sum(r["rating"] for r in L if r.get("rating") is not None) / max(1, sum(1 for r in L if r.get("rating") is not None))
         share = lambda L, s: sum(r["sentiment"] == s for r in L) / max(1, len(L))
         ind = []
@@ -204,7 +240,121 @@ def momentum(rows, today):
         w = sum(i["signal"] == "worse" for i in ind)
         b = sum(i["signal"] == "better" for i in ind)
         state = "Likely declining" if w >= 2 else "Emerging decline" if w == 1 else "Gaining momentum" if b >= 2 else "Stable"
-        out.append({"product": prod, "state": state, "indicators": ind, "n": [len(cur), len(prev)]})
+
+        # Weekly buckets for the last 8 weeks (W1..W8)
+        # W1..W4 = prior 28 days (day 56 to 28 ago)
+        # W5..W8 = last 28 days (day 28 to 0 ago)
+        weekly_series = []
+        for wk_idx in range(8):
+            d_end = today - dt.timedelta(days=(7 - wk_idx) * 7)
+            d_start = d_end - dt.timedelta(days=7)
+            wk_rows = [r for r in pr if d_start < r["date"] <= d_end]
+            n_w = len(wk_rows)
+            if n_w == 0:
+                weekly_series.append({
+                    "week_label": f"W{wk_idx + 1}",
+                    "week_num": wk_idx + 1,
+                    "n_reviews": 0,
+                    "avg_rating": None,
+                    "positive_pct": None,
+                    "negative_pct": None,
+                    "period": "prior" if wk_idx < 4 else "last",
+                    "start_date": (d_start + dt.timedelta(days=1)).strftime("%b %d"),
+                    "end_date": d_end.strftime("%b %d"),
+                })
+            else:
+                rated = [r["rating"] for r in wk_rows if r.get("rating") is not None]
+                weekly_series.append({
+                    "week_label": f"W{wk_idx + 1}",
+                    "week_num": wk_idx + 1,
+                    "n_reviews": n_w,
+                    "avg_rating": round(sum(rated) / len(rated), 2) if rated else None,
+                    "positive_pct": round(100.0 * sum(r["sentiment"] == "positive" for r in wk_rows) / n_w, 1),
+                    "negative_pct": round(100.0 * sum(r["sentiment"] == "negative" for r in wk_rows) / n_w, 1),
+                    "period": "prior" if wk_idx < 4 else "last",
+                    "start_date": (d_start + dt.timedelta(days=1)).strftime("%b %d"),
+                    "end_date": d_end.strftime("%b %d"),
+                })
+
+        # Complaint themes (top 5 topics in last 28 days vs prior 28 days)
+        cur_topics, prev_topics = {}, {}
+        for r in cur:
+            for t_item in r.get("topics", []):
+                tp = t_item.get("topic")
+                st = t_item.get("sent")
+                if tp and st in ("neg", "negative"):
+                    cur_topics[tp] = cur_topics.get(tp, 0) + 1
+        for r in prev:
+            for t_item in r.get("topics", []):
+                tp = t_item.get("topic")
+                st = t_item.get("sent")
+                if tp and st in ("neg", "negative"):
+                    prev_topics[tp] = prev_topics.get(tp, 0) + 1
+
+        all_tps = set(cur_topics.keys()) | set(prev_topics.keys())
+        themes = []
+        for tp in all_tps:
+            c_cur = cur_topics.get(tp, 0)
+            c_prev = prev_topics.get(tp, 0)
+            clean_label = tp.replace("_", " ").title() if "/" not in tp else " / ".join(part.capitalize() for part in tp.split("/"))
+            themes.append({
+                "topic": tp,
+                "label": clean_label,
+                "count_last": c_cur,
+                "count_prior": c_prev,
+                "growth": c_cur - c_prev,
+            })
+        themes.sort(key=lambda x: (-x["count_last"], -x["growth"]))
+        complaint_topics = themes[:5]
+        top_complaint_topic = complaint_topics[0]["label"] if complaint_topics and complaint_topics[0]["count_last"] > 0 else "None"
+        top_complaint_count = complaint_topics[0]["count_last"] if complaint_topics else 0
+
+        # KPI metrics
+        cur_rated = [r["rating"] for r in cur if r.get("rating") is not None]
+        cur_avg = round(sum(cur_rated) / len(cur_rated), 2) if cur_rated else 0.0
+        prev_rated = [r["rating"] for r in prev if r.get("rating") is not None]
+        prev_avg = round(sum(prev_rated) / len(prev_rated), 2) if prev_rated else 0.0
+
+        cur_neg_share = round(100.0 * sum(r["sentiment"] == "negative" for r in cur) / max(1, len(cur)), 1)
+        prev_neg_share = round(100.0 * sum(r["sentiment"] == "negative" for r in prev) / max(1, len(prev)), 1)
+        neg_delta = round(cur_neg_share - prev_neg_share, 1)
+        neg_trend = "rising" if neg_delta >= 2.0 else "falling" if neg_delta <= -2.0 else "stable"
+        neg_trend_label = "Rising" if neg_trend == "rising" else "Falling" if neg_trend == "falling" else "Stable"
+        neg_trend_icon = "▲" if neg_trend == "rising" else "▼" if neg_trend == "falling" else "―"
+
+        # Early warning callout (only for Likely declining or Emerging decline)
+        early_warning = None
+        if state in ("Likely declining", "Emerging decline"):
+            growing_topics = [t for t in complaint_topics if t["growth"] > 0]
+            if growing_topics:
+                lead = growing_topics[0]
+                p1_share = round(100.0 * lead["count_last"] / max(1, len(cur)))
+                p2_share = round(100.0 * lead["count_prior"] / max(1, len(prev)))
+                early_warning = f"{lead['label']} complaints rose from {p2_share}% to {p1_share}% of reviews. Check recent {lead['label'].lower()} issues."
+            else:
+                early_warning = f"Negative review share rose from {prev_neg_share:.0f}% to {cur_neg_share:.0f}% of reviews. Check recent customer feedback."
+
+        out.append({
+            "product": prod,
+            "category": cat,
+            "state": state,
+            "has_enough_data": True,
+            "indicators": ind,
+            "n": [len(cur), len(prev)],
+            "avg_rating": cur_avg,
+            "avg_rating_prior": prev_avg,
+            "negative_share": cur_neg_share,
+            "negative_share_prior": prev_neg_share,
+            "neg_share_delta": neg_delta,
+            "neg_trend": neg_trend,
+            "neg_trend_label": neg_trend_label,
+            "neg_trend_icon": neg_trend_icon,
+            "top_complaint_topic": top_complaint_topic,
+            "top_complaint_count": top_complaint_count,
+            "early_warning": early_warning,
+            "weekly_series": weekly_series,
+            "complaint_topics": complaint_topics,
+        })
     return out
 
 
